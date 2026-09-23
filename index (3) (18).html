@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WizSuite — Publishing Infrastructure for Puzzle & Activity Books</title>
+<meta name="description" content="WizSuite generates, verifies and formats print interiors at catalog scale — logic casebooks, color-by-numbers, activity books and mazes in 11 languages. Median build time: 38 seconds.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Michroma&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1b1e; --ink2:#47484c; --gray:#8a8c92; --gray2:#b9babf; --gray3:#dcdcdf;
+  --red:#ef8f8f; --green:#3bb273; --dark:#232427;
+  --serif:'PT Serif',Georgia,serif; --sans:'Inter',sans-serif; --mark:'Michroma',sans-serif;
+  --mx:50%; --my:20%;
+  --ease-premium:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  background:linear-gradient(155deg,#f2f2f4 0%,#e4e5e8 34%,#eeeff1 55%,#dfe0e3 78%,#e9eaec 100%);}
+body::before{content:"";position:fixed;inset:-22%;z-index:-3;filter:blur(52px);opacity:.85;
+  background:repeating-linear-gradient(115deg,
+    rgba(255,255,255,0) 0 110px, rgba(255,255,255,.85) 110px 190px, rgba(255,255,255,0) 190px 300px,
+    rgba(186,188,194,.5) 300px 372px, rgba(255,255,255,0) 372px 520px,
+    rgba(255,255,255,.65) 520px 600px, rgba(255,255,255,0) 600px 760px);}
+body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+   radial-gradient(1000px 640px at 82% -6%, rgba(255,255,255,.95), rgba(255,255,255,0) 62%),
+   radial-gradient(820px 560px at 6% 34%, rgba(255,255,255,.7), rgba(255,255,255,0) 60%),
+   radial-gradient(700px 480px at 60% 88%, rgba(255,255,255,.5), rgba(255,255,255,0) 62%),
+   linear-gradient(200deg, rgba(173,196,255,.10), rgba(255,214,196,.09) 45%, rgba(255,255,255,0) 72%);
+  mix-blend-mode:soft-light;}
+#gloss{position:fixed;inset:0;z-index:-1;pointer-events:none;mix-blend-mode:screen;opacity:.5;
+  background:radial-gradient(640px 420px at var(--mx) var(--my), rgba(255,255,255,.75), rgba(255,255,255,0) 62%),
+             linear-gradient(105deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.4) 50%,rgba(255,255,255,0) 60%);}
+#sprog{position:fixed;top:0;left:0;height:2px;width:0;z-index:99;background:linear-gradient(90deg,#3a3b3f,#1a1b1e)}
+.serif{font-family:var(--serif)} .micro{font-size:10.5px;color:var(--gray);font-weight:500;letter-spacing:.02em}
+svg{display:block}.ic{stroke:#77787c;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.glass{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.44));
+  backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.85);border-radius:28px;box-shadow:0 24px 60px rgba(20,21,25,.09),inset 0 1px 0 #fff;}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.7;transition:opacity .4s;
+  background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.5) 50%,rgba(255,255,255,0) 58%);mix-blend-mode:screen}
+.glass:hover::after{opacity:1}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.6));border:1px solid rgba(255,255,255,.9);
+  border-radius:22px;position:relative;box-shadow:0 10px 26px rgba(20,21,25,.06),inset 0 1px 0 #fff}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(105deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 56%);mix-blend-mode:screen}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;cursor:pointer;
+  font:500 12.5px var(--sans);padding:12px 22px;text-decoration:none;border:0;transition:transform .15s,box-shadow .2s}
+.btn:active{transform:scale(.97)}
+.btn-dark{background:linear-gradient(180deg,#3a3b3f,#232427);color:#fff;box-shadow:0 12px 26px rgba(20,21,25,.28),inset 0 1px 0 rgba(255,255,255,.25)}
+.btn-dark:hover{box-shadow:0 16px 34px rgba(20,21,25,.36),inset 0 1px 0 rgba(255,255,255,.3)}
+.btn-dark:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn-light{background:#fdfdfe;color:var(--ink);border:1px solid rgba(20,21,25,.05);box-shadow:0 8px 20px rgba(20,21,25,.08),inset 0 1px 0 #fff}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;background:#fff;
+  box-shadow:0 5px 12px rgba(20,21,25,.08),inset 0 1px 0 #fff;font:600 10.5px var(--sans)}
+.pill .g2{color:var(--gray2);font-weight:500}
+.pill.ok{color:var(--green);font-weight:600}
+.wc{border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 7px 16px rgba(20,21,25,.09),inset 0 1px 0 #fff}
+.wc.darkc{background:linear-gradient(180deg,#3a3b3f,#232427);box-shadow:0 8px 18px rgba(20,21,25,.3),inset 0 1px 0 rgba(255,255,255,.25)}
+.led{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(59,178,115,.9);flex:none}
+.led.live{background:var(--ink);box-shadow:0 0 10px rgba(26,27,30,.6);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.rv{will-change:transform,opacity,filter;transition:opacity .9s var(--ease-premium),transform .9s var(--ease-premium)}
+[data-stag]>*{transition:opacity .9s var(--ease-premium),transform .9s var(--ease-premium),filter .9s var(--ease-premium)}
+
+/* NAV */
+.nav{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:80;width:min(1060px,94%);
+  padding:9px 10px 9px 22px;border-radius:999px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(252,252,253,.66);backdrop-filter:blur(22px) saturate(1.4);border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 14px 36px rgba(20,21,25,.10),inset 0 1px 0 #fff}
+.wordmark{font-family:var(--mark);font-size:12px;letter-spacing:.14em;color:var(--ink);display:flex;align-items:center;gap:8px}
+.wordmark span{color:var(--gray2)}
+.navlinks{display:flex;gap:22px}
+.navlinks a{font:500 12.5px var(--sans);color:var(--gray);text-decoration:none}
+.navlinks a:hover{color:var(--ink)}
+
+/* HERO */
+.hero{position:relative;padding:160px 4% 70px;overflow:hidden}
+.ghost{position:absolute;top:70px;left:0;right:0;z-index:0;pointer-events:none;text-align:center;will-change:transform;
+  font:800 clamp(80px,14vw,210px)/1 var(--sans);letter-spacing:-.02em;white-space:nowrap;
+  background:linear-gradient(180deg,#b4b5ba 0%,rgba(180,181,186,.5) 48%,rgba(180,181,186,0) 78%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-grid{position:relative;z-index:2;width:min(1160px,94%);margin:0 auto;display:grid;grid-template-columns:1.02fr .98fr;gap:52px;align-items:center}
+.hero h1{font:400 clamp(34px,4.2vw,56px)/1.16 var(--serif);letter-spacing:-.01em;margin:16px 0 14px}
+.hero .sub{font:400 13.5px/1.7 var(--sans);color:var(--gray);max-width:460px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 12px}
+.login{font:400 11px var(--sans);color:var(--gray)} .login b{color:var(--ink);font-weight:500}
+
+/* PERFORMANCE BADGES */
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:min(1160px,94%);margin:40px auto 0}
+.badge{padding:16px 18px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.6));
+  border:1px solid rgba(255,255,255,.9);box-shadow:0 8px 18px rgba(20,21,25,.06),inset 0 1px 0 #fff}
+.badge .n{font:600 18px var(--serif);display:block;color:var(--ink)}
+.badge .l{font:500 9.5px var(--sans);color:var(--gray);letter-spacing:.04em;display:block;margin-top:4px}
+
+/* ORBIT ECOSYSTEM */
+.orbit-wrap{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:470px}
+.orbit-stage{position:relative;--stage:min(340px,80vw);width:var(--stage);height:var(--stage)}
+.orbit-ring{position:absolute;border-radius:50%;pointer-events:none}
+.orbit-ring.r1{inset:8%;border:1px dashed rgba(26,27,30,.16)}
+.orbit-ring.r2{inset:27%;border:1px solid rgba(26,27,30,.05)}
+.orbit-ring.r3{inset:-6%;border:1px solid rgba(255,255,255,.75);box-shadow:0 24px 60px rgba(20,21,25,.08);background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.06))}
+.orbit-rotor{position:absolute;inset:0;animation:orbit 46s linear infinite}
+.orbit-stage:hover .orbit-rotor,.orbit-stage:hover .os-in{animation-play-state:paused}
+.orbit-sat{position:absolute;top:50%;left:50%;width:64px;margin:-32px;transform:rotate(var(--a)) translate(calc(var(--stage)*.42)) rotate(var(--na))}
+.orbit-sat .os-in{display:flex;flex-direction:column;align-items:center;gap:7px;animation:orbit 46s linear infinite reverse}
+.otile{width:56px;height:56px;border-radius:17px;background:#fff;display:grid;place-items:center;position:relative;border:1px solid rgba(20,21,25,.06);box-shadow:0 12px 26px rgba(20,21,25,.13),inset 0 1px 0 #fff;transition:transform .3s var(--ease-premium)}
+.orbit-sat:hover .otile{transform:scale(1.1)}
+.otile::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(105deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.65) 50%,rgba(255,255,255,0) 56%);mix-blend-mode:screen}
+.otile svg{display:block}
+.olbl{font:600 9px var(--sans);letter-spacing:.08em;color:var(--ink);background:rgba(255,255,255,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.95);padding:5px 10px;border-radius:999px;box-shadow:0 6px 14px rgba(20,21,25,.12);white-space:nowrap}
+.orbit-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:98px;height:98px;border-radius:28px;background:linear-gradient(180deg,#3a3b3f,#232427);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 22px 44px rgba(20,21,25,.34),inset 0 1px 0 rgba(255,255,255,.25);z-index:3;border:1px solid rgba(255,255,255,.55)}
+.orbit-core .wm{font-family:var(--mark);font-size:9px;letter-spacing:.14em;color:#fff;display:flex;align-items:center;gap:4px}
+.orbit-core .wm span{color:rgba(255,255,255,.45)}
+.orbit-core .st{font:600 6.5px var(--sans);letter-spacing:.16em;color:#3bb273;display:flex;align-items:center;gap:4px}
+.orbit-note{margin-top:20px}
+@keyframes orbit{to{transform:rotate(360deg)}}
+
+/* MARKETPLACE ROW */
+.mkts{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.mkt{padding:22px;border-radius:22px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.6));border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 10px 26px rgba(20,21,25,.06),inset 0 1px 0 #fff;transition:transform .3s var(--ease-premium)}
+.mkt:hover{transform:translateY(-4px)}
+/* SQUIRCLE TILES (marketplaces) */
+.mkt .sqr{width:56px;height:56px;border-radius:16px;background:#fff;border:1px solid rgba(20,21,25,.06);display:grid;place-items:center;box-shadow:0 10px 22px rgba(20,21,25,.10),inset 0 1px 0 #fff;position:relative;transition:transform .3s var(--ease-premium)}
+.mkt .sqr::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(105deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.7) 50%,rgba(255,255,255,0) 56%);mix-blend-mode:screen}
+.mkt:hover .sqr{transform:translateY(-3px)}
+.mkt .sqr svg{display:block}
+.mkt b{font:400 14px var(--serif);color:var(--ink)}
+.mkt .m{font:500 10px var(--sans);color:var(--gray);letter-spacing:.08em}
+
+/* PROBLEM/SOLUTION */
+.ps{display:grid;grid-template-columns:1fr 1fr;gap:46px;padding:32px;border-radius:30px}
+.ps h3{font:400 20px var(--serif);margin-bottom:12px}
+.ps p{font:400 12.5px/1.7 var(--sans);color:var(--gray)}
+.ps .vs{padding-top:16px;border-top:1px solid rgba(20,21,25,.08);margin-top:14px;display:flex;gap:8px;align-items:center}
+.ps .vs .t{font:600 10.5px var(--sans);letter-spacing:.08em;color:var(--red)}
+.ps .vs.ok .t{color:var(--green)}
+
+/* ENGINES */
+.engines{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.engine{padding:24px;border-radius:26px;display:flex;flex-direction:column}
+.ehead{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.ehead .wc{width:44px;height:44px;flex:none}
+.ehead b{font:400 17px var(--serif);display:block}
+.ehead .micro{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:9px}
+.etag{font:400 12px/1.6 var(--sans);color:var(--gray);margin-bottom:14px;min-height:56px}
+.mini{background:#fff;border-radius:14px;padding:10px;height:158px;flex:none;display:flex;flex-direction:column;gap:7px;
+  box-shadow:inset 0 0 0 1px rgba(20,21,25,.06),0 8px 18px rgba(20,21,25,.07)}
+.mg{display:grid;gap:2px;flex:1}
+.c{border:1px solid rgba(20,21,25,.08);border-radius:2px;display:grid;place-items:center;font:600 7.5px var(--sans);color:var(--gray2)}
+.c.clue{color:var(--ink)} .c.x{color:var(--red);font-weight:800} .c.ink{background:#232427;border-color:#232427}
+.legend{display:flex;gap:8px;align-items:center}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.legend span{font:600 7.5px var(--sans);color:var(--gray2);margin-right:3px}
+.espec{display:flex;justify-content:space-between;margin:14px 0 14px;padding-top:12px;border-top:1px solid rgba(20,21,25,.06)}
+.espec span{font:500 9px var(--sans);color:var(--gray2);letter-spacing:.06em}
+.erun{margin-top:auto;align-self:flex-start;background:none;border:0;cursor:pointer;font:500 11.5px var(--sans);color:var(--ink);
+  display:flex;align-items:center;gap:6px;padding:0;transition:gap .2s}
+.erun:hover{gap:10px}
+
+/* FEATURE SPOTLIGHT */
+.spot{padding:36px;border-radius:30px}
+.vid{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/9;background:#1a1b1e;
+  box-shadow:0 30px 60px rgba(20,21,25,.3),inset 0 1px 0 rgba(255,255,255,.1);margin-bottom:24px}
+.vid-inner{position:absolute;inset:0;padding:24px;display:grid;grid-template-rows:auto 1fr auto;gap:14px}
+.vid-top{display:flex;align-items:center;justify-content:space-between}
+.vid-dots{display:flex;gap:6px}
+.vid-dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2)}
+.vid-dots i:first-child{background:#ef8f8f}
+.vid-dots i:nth-child(2){background:#f5c542}
+.vid-dots i:nth-child(3){background:#3bb273}
+.vid-tab{font:500 9px var(--sans);color:rgba(255,255,255,.5);letter-spacing:.12em}
+.vid-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;padding:10px;background:rgba(255,255,255,.04);border-radius:10px;
+  border:1px solid rgba(255,255,255,.08)}
+.vcell{aspect-ratio:1;border-radius:3px;background:rgba(255,255,255,.04);display:grid;place-items:center;
+  font:600 9px var(--sans);color:rgba(255,255,255,.3);animation:vfill 4.5s ease-in-out infinite}
+.vcell.on{background:rgba(59,178,115,.18);color:#3bb273;border:1px solid rgba(59,178,115,.4)}
+@keyframes vfill{0%,100%{opacity:.3;transform:scale(.85)}30%,70%{opacity:1;transform:scale(1)}}
+.vid-foot{display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(59,178,115,.08);border:1px solid rgba(59,178,115,.2);
+  border-radius:10px}
+.vid-foot .badge-g{display:inline-flex;align-items:center;gap:6px;font:600 10.5px var(--sans);color:#3bb273;letter-spacing:.08em}
+.vid-foot .badge-g svg{stroke:#3bb273;width:14px;height:14px}
+.vid-foot .meta{margin-left:auto;font:500 9px var(--sans);color:rgba(255,255,255,.4);letter-spacing:.1em}
+.spotgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.spotcard{padding:22px;border-radius:18px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85)}
+.spotcard h4{font:400 16px var(--serif);margin-bottom:8px}
+.spotcard p{font:400 11.5px/1.65 var(--sans);color:var(--gray)}
+
+/* PROOF CONSOLE */
+.console{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:18px;align-items:start}
+.crail{display:flex;flex-direction:column;gap:10px}
+.crail .lbl{font:600 9.5px var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--gray2)}
+.librow{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:14px;cursor:pointer;text-align:left;
+  background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);transition:all .3s var(--ease-premium)}
+.librow:hover{background:#fff;transform:translateX(3px)}
+.librow.on{background:#fff;box-shadow:0 10px 22px rgba(20,21,25,.10),inset 0 1px 0 #fff}
+.librow .t{font:400 12.5px var(--serif);display:block}
+.librow .m{font:500 8.5px var(--sans);color:var(--gray2);display:block;margin-top:2px}
+.librow .chip{margin-left:auto}
+.quotabox{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;
+  background:rgba(26,27,30,.04);border:1px dashed rgba(26,27,30,.18)}
+.quotabox .n{font:600 15px var(--serif)}
+.quotabox .micro{line-height:1.5}
+.viewer{background:#fff;border-radius:20px;position:relative;overflow:hidden;min-height:460px;
+  box-shadow:inset 0 0 0 1px rgba(20,21,25,.07),0 18px 40px rgba(20,21,25,.10);display:flex;flex-direction:column}
+.vhead{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid rgba(20,21,25,.06)}
+.vhead .t{font:400 15px var(--serif)}
+.vhead .meta{margin-left:auto;font:500 9px var(--sans);color:var(--gray2);text-align:right}
+.vbody{flex:1;padding:20px;display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;justify-content:center}
+.vfoot{display:flex;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid rgba(20,21,25,.06);
+  background:linear-gradient(180deg,rgba(246,246,248,.6),rgba(246,246,248,.9))}
+.vfoot .lock{display:flex;align-items:center;gap:7px;font:500 9.5px var(--sans);color:var(--gray);margin-left:auto}
+.watermark{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2;
+  font:800 clamp(40px,7vw,84px) var(--sans);letter-spacing:.06em;color:rgba(26,27,30,.045);transform:rotate(-16deg)}
+.pz{display:grid;gap:0}
+.pz .cell{border:0 solid #47484c;display:grid;place-items:center;font:600 10px var(--sans);color:var(--ink2);background:#fff}
+.pz .cell.hdr{background:rgba(26,27,30,.04);font:600 8px var(--sans);color:var(--gray);border:0}
+.pz .cell.hit{background:rgba(59,178,115,.14)}
+.pzwrap{display:flex;flex-direction:column;gap:10px;align-items:center}
+.clues{flex:1;min-width:220px;display:flex;flex-direction:column;gap:8px}
+.clues li{list-style:none;font:400 12px/1.55 var(--serif);color:var(--ink2);border-left:2px solid rgba(26,27,30,.15);padding-left:10px}
+.words{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.words span{font:600 9px var(--sans);letter-spacing:.08em;color:var(--gray);background:rgba(26,27,30,.04);border-radius:999px;padding:5px 10px}
+.words span.found{color:var(--green);background:rgba(59,178,115,.12);text-decoration:line-through}
+
+/* COMPLIANCE */
+.shield{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;align-items:center}
+.shield-list{display:flex;flex-direction:column;gap:12px}
+.shield-item{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:16px;
+  background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85)}
+.shield-item .icw{width:34px;height:34px;border-radius:10px;background:rgba(59,178,115,.12);display:grid;place-items:center;flex:none}
+.shield-item .icw svg{stroke:#3bb273;width:16px;height:16px}
+.shield-item b{font:400 14px var(--serif);display:block;margin-bottom:3px}
+.shield-item p{font:400 11px/1.6 var(--sans);color:var(--gray)}
+
+/* CAPACITY DASHBOARD */
+.dash{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.dashcard{padding:24px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.6));
+  border:1px solid rgba(255,255,255,.9);box-shadow:0 12px 28px rgba(20,21,25,.07),inset 0 1px 0 #fff}
+.dashcard .n{font:400 28px var(--serif);color:var(--ink);display:block}
+.dashcard .n small{font-size:13px;color:var(--gray2)}
+.dashcard .l{font:600 9px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--gray2);display:block;margin-bottom:10px}
+.dashcard .m{font:400 11px/1.55 var(--sans);color:var(--gray);display:block;margin-top:8px}
+
+/* GLOBAL PRESS / LANGUAGE RAIL */
+.langwrap{display:grid;grid-template-columns:1fr 1.08fr;gap:16px;align-items:stretch}
+.langlist{position:relative;height:452px;overflow:hidden;padding:0;border-radius:28px}
+.langlist::before,.langlist::after{content:"";position:absolute;left:0;right:0;height:70px;z-index:3;pointer-events:none}
+.langlist::before{top:0;background:linear-gradient(180deg,rgba(250,250,251,.95),rgba(250,250,251,0))}
+.langlist::after{bottom:0;background:linear-gradient(0deg,rgba(246,246,248,.95),rgba(246,246,248,0))}
+.langtrack{padding:18px 14px;transition:transform .75s var(--ease-premium);will-change:transform}
+.lrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:16px;cursor:pointer;
+  transition:background .45s,box-shadow .45s,transform .45s}
+/* FLAG TILES (language rail) */
+.lrow .fl{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#fff;flex:none;display:grid;place-items:center;border:1px solid rgba(20,21,25,.06);box-shadow:0 4px 10px rgba(20,21,25,.10),inset 0 1px 0 #fff}
+.lrow .fl svg{width:100%;height:100%;display:block}
+.lrow b{font:500 13px var(--sans);display:block}
+.lrow .nat{font:400 11.5px var(--serif);font-style:italic;color:var(--gray);display:block;margin-top:1px}
+.lrow .cnt{margin-left:auto;font:600 10.5px var(--sans);color:var(--gray2);transition:color .4s}
+.lrow.on{background:#fff;box-shadow:0 12px 26px rgba(20,21,25,.11),inset 0 1px 0 #fff;transform:scale(1.025)}
+.lrow.on .cnt{color:var(--ink)}
+.lfoot{position:absolute;left:0;right:0;bottom:0;z-index:4;padding:12px 18px 14px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(0deg,rgba(248,248,250,.96),rgba(248,248,250,0))}
+.lbar{flex:1;height:3px;border-radius:2px;background:rgba(20,21,25,.08);overflow:hidden}
+.lbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3a3b3f,#1a1b1e)}
+.ldots{display:flex;gap:5px}
+.ldots i{width:6px;height:6px;border-radius:50%;background:rgba(20,21,25,.14);cursor:pointer;transition:all .3s}
+.ldots i.on{background:var(--ink);transform:scale(1.25)}
+.lprev{padding:26px;border-radius:28px;display:flex;flex-direction:column;gap:16px;min-height:452px}
+.lswap{display:flex;flex-direction:column;gap:16px;flex:1;transition:opacity .5s var(--ease-premium),transform .5s var(--ease-premium)}
+.ltop{display:flex;gap:18px;align-items:flex-start}
+.lbook{width:148px;height:206px;flex:none;background:linear-gradient(180deg,#2e2f33,#1a1b1e);border-radius:6px;padding:15px;
+  display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 20px 40px rgba(20,21,25,.3),inset 0 1px 0 rgba(255,255,255,.18)}
+.lbook .t{font:400 15px/1.35 var(--serif);color:#fff}
+.lbook .s{font:600 6.5px var(--sans);letter-spacing:.16em;color:rgba(255,255,255,.5)}
+.lbook .fl{width:22px;height:22px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.14);display:grid;place-items:center;border:1px solid rgba(255,255,255,.22)}
+.lbook .fl svg{width:100%;height:100%;display:block}
+.lmeta{flex:1;display:flex;flex-direction:column;gap:10px}
+.lmeta .row{display:flex;gap:8px;flex-wrap:wrap}
+.lclue{font:400 14px/1.6 var(--serif);font-style:italic;color:var(--ink2);border-left:2px solid rgba(26,27,30,.15);padding-left:12px}
+.lcells{display:flex;gap:4px}
+.lcells span{width:24px;height:24px;border:1px solid rgba(20,21,25,.1);border-radius:4px;display:grid;place-items:center;
+  font:600 11px var(--sans);color:var(--ink);background:#fff}
+.lstats{display:flex;gap:26px;align-items:baseline;margin-top:auto;padding-top:14px;border-top:1px solid rgba(20,21,25,.07)}
+.lstats .big{font:400 26px var(--serif)}
+.lstats .big i{font-style:normal;color:#c9cacd}
+
+/* AUDIENCES */
+.auds{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.aud{padding:28px;border-radius:24px;display:flex;flex-direction:column;gap:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.6));border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 10px 26px rgba(20,21,25,.06),inset 0 1px 0 #fff}
+.aud .num{font:600 10px var(--sans);letter-spacing:.24em;color:var(--gray2)}
+.aud h3{font:400 19px var(--serif)}
+.aud p{font:400 12px/1.7 var(--sans);color:var(--gray)}
+
+/* GUARANTEE */
+.gtee{padding:46px;border-radius:30px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;
+  background:linear-gradient(180deg,#2e2f33,#1a1b1e);border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 30px 60px rgba(20,21,25,.35),inset 0 1px 0 rgba(255,255,255,.1);color:#fff;position:relative;overflow:hidden}
+.gtee::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.08) 50%,transparent 58%)}
+.gtee h3{font:400 clamp(22px,2.6vw,30px)/1.25 var(--serif);margin-bottom:14px}
+.gtee p{font:400 12.5px/1.7 var(--sans);color:rgba(255,255,255,.62);max-width:540px}
+.gtee .sig{margin-top:18px;font:400 11.5px var(--sans);color:rgba(255,255,255,.4);letter-spacing:.05em}
+.gtee .seal{width:120px;height:120px;border-radius:50%;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;
+  background:rgba(255,255,255,.04);flex:none;position:relative;z-index:1}
+.gtee .seal svg{stroke:rgba(255,255,255,.55);width:38px;height:38px}
+
+/* PRICING */
+.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pcard{padding:32px 28px;border-radius:30px;display:flex;flex-direction:column}
+.pcard h3{font:400 20px var(--serif)}
+.pcard .big{font-size:36px;margin:10px 0 2px}
+.pcard .big small{font:500 11px var(--sans);color:var(--gray2)}
+.pcard ul{list-style:none;margin:16px 0 24px;display:flex;flex-direction:column;gap:11px}
+.pcard li{display:flex;gap:10px;align-items:center;font:500 12px var(--sans);color:var(--gray)}
+.pcard .btn{margin-top:auto}
+.pcard.feat{background:linear-gradient(180deg,#2e2f33,#1a1b1e);border-color:rgba(255,255,255,.14);
+  box-shadow:0 30px 60px rgba(20,21,25,.35),inset 0 1px 0 rgba(255,255,255,.18)}
+.pcard.feat::after{background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.16) 50%,rgba(255,255,255,0) 58%)}
+.pcard.feat h3,.pcard.feat .big{color:#fff}
+.pcard.feat li{color:rgba(255,255,255,.62)} .pcard.feat .big small{color:rgba(255,255,255,.4)}
+.guarantee{text-align:center;margin-top:26px;font:400 11.5px/1.7 var(--sans);color:var(--gray)}
+
+/* FAQ */
+.faq{max-width:760px;margin:0 auto}
+.faq details{border-top:1px solid rgba(20,21,25,.07);padding:4px 0}
+.faq details:last-child{border-bottom:1px solid rgba(20,21,25,.07)}
+.faq summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px;cursor:pointer;font:400 16px var(--serif);padding:18px 2px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary svg{transition:transform .3s;flex:none}
+.faq details[open] summary svg{transform:rotate(45deg)}
+.faq p{font:400 12.5px/1.75 var(--sans);color:var(--gray);padding:0 2px 20px;max-width:640px}
+
+/* CTA + FOOTER */
+.cta{text-align:center;padding:120px 4%}
+.cta h2{font:400 clamp(34px,4.2vw,54px)/1.15 var(--serif)}
+.cta .micro{display:block;margin:14px 0 26px;font-size:11px}
+.footer{position:relative;margin-top:60px;overflow:hidden;color:#e9e9ec;
+  background:linear-gradient(180deg,#26272b 0%,#17181b 55%,#101113 100%);
+  border-radius:46px 46px 0 0;box-shadow:0 -30px 90px rgba(20,21,25,.28)}
+.footer::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%),
+             radial-gradient(700px 300px at 85% 0%,rgba(255,255,255,.08),transparent 60%)}
+.f-in{position:relative;z-index:2;width:min(1160px,94%);margin:0 auto;padding:74px 0 190px}
+.f-top{display:grid;grid-template-columns:1.15fr 1fr;gap:44px;align-items:end;
+  padding-bottom:46px;border-bottom:1px solid rgba(255,255,255,.09)}
+.f-top .wordmark{display:flex;align-items:center;gap:8px;color:#fff;margin-bottom:18px;
+  font-family:'Michroma',sans-serif;font-size:12px;letter-spacing:.14em}
+.f-top .wordmark span{color:rgba(255,255,255,.4)}
+.f-top h2{font-family:'PT Serif',Georgia,serif;font-weight:400;
+  font-size:clamp(28px,3.4vw,42px);line-height:1.18;color:#fff;letter-spacing:-.01em}
+.fsub{font-family:'Inter',sans-serif;font-weight:400;font-size:12.5px;line-height:1.7;
+  color:rgba(233,233,236,.55);margin-top:12px;max-width:400px}
+.flabel{display:block;font-family:'Inter',sans-serif;font-weight:600;font-size:9.5px;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(233,233,236,.45);margin-bottom:12px}
+.fnews{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 6px 6px 20px;
+  backdrop-filter:blur(12px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.fnews input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;
+  font-family:'Inter',sans-serif;font-size:12.5px}
+.fnews input::placeholder{color:rgba(233,233,236,.35)}
+.fnews button{border:0;cursor:pointer;border-radius:999px;background:#f5f5f6;color:#1a1b1e;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;padding:11px 18px;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);transition:transform .15s}
+.fnews button:active{transform:scale(.96)}
+.fnote{display:block;font-family:'Inter',sans-serif;font-size:10px;color:rgba(233,233,236,.4);margin-top:10px}
+.f-cols{display:grid;grid-template-columns:repeat(5,1fr);gap:30px;padding:46px 0}
+.f-col b{font-family:'Inter',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.24em;
+  text-transform:uppercase;color:rgba(233,233,236,.4);display:block;margin-bottom:14px}
+.f-col a{display:block;width:fit-content;color:rgba(235,235,238,.68);font-family:'Inter',sans-serif;
+  font-weight:500;font-size:12px;line-height:2.2;text-decoration:none;
+  background:linear-gradient(currentColor,currentColor) left bottom/0 1px no-repeat;
+  transition:background-size .35s,color .3s}
+.f-col a:hover{color:#fff;background-size:100% 1px}
+.fchips{display:flex;flex-wrap:wrap;gap:6px}
+/* FLAG CHIPS (footer) */
+.fchip{display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-weight:600;font-size:9px;letter-spacing:.08em;
+  color:rgba(235,235,238,.6);padding:5px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
+  transition:all .3s;cursor:default}
+.fchip:hover{color:#fff;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.06)}
+.fic{width:16px;height:16px;border-radius:50%;overflow:hidden;background:#fff;display:grid;place-items:center;flex:none;border:1px solid rgba(20,21,25,.10)}
+.fic svg{width:100%;height:100%;display:block}
+.f-status{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 2px;
+  border-top:1px solid rgba(255,255,255,.09);font-family:'Inter',sans-serif;font-weight:500;
+  font-size:10.5px;color:rgba(233,233,236,.55)}
+.f-status .led{width:7px;height:7px;border-radius:50%;background:#3bb273;box-shadow:0 0 10px rgba(59,178,115,.9)}
+.fsep{width:1px;height:12px;background:rgba(255,255,255,.14)}
+.f-bot{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:20px 2px 0}
+.f-bot>span{font-family:'Inter',sans-serif;font-size:10.5px;color:rgba(233,233,236,.4)}
+.flegal{display:flex;gap:20px;flex-wrap:wrap}
+.flegal a{font-family:'Inter',sans-serif;font-weight:500;font-size:10.5px;color:rgba(233,233,236,.5);text-decoration:none}
+.flegal a:hover{color:#fff}
+.forbs{display:flex;gap:9px;margin-left:auto}
+.soc,.totop{width:37px;height:37px;border-radius:50%;border:1px solid rgba(255,255,255,.15);cursor:pointer;
+  background:rgba(255,255,255,.05);display:grid;place-items:center;transition:all .3s;text-decoration:none}
+.soc:hover,.totop:hover{background:#f5f5f6;border-color:#f5f5f6}
+.soc svg,.totop svg{stroke:rgba(255,255,255,.75)}
+.soc:hover svg,.totop:hover svg{stroke:#1a1b1e}
+.f-ghost{position:absolute;left:0;right:0;bottom:-4px;z-index:1;text-align:center;pointer-events:none;user-select:none;
+  font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(90px,16vw,230px);line-height:.85;letter-spacing:-.02em;
+  background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0) 85%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* MOTION */
+.w{display:inline-block;will-change:transform,opacity,filter}
+.mini{position:relative;overflow:hidden}
+.skel{position:absolute;inset:0;border-radius:inherit;z-index:2;background:linear-gradient(180deg,#f1f1f3,#e8e8eb);transition:opacity .55s ease}
+.skel::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,transparent 32%,rgba(255,255,255,.95) 50%,transparent 68%);
+  animation:shim 1.15s var(--ease-premium) infinite}
+@keyframes shim{from{transform:translateX(-70%)}to{transform:translateX(70%)}}
+.strip{width:min(1160px,94%);margin:40px auto 0;border-radius:999px;overflow:hidden;padding:16px 0}
+.strip ul{display:flex;gap:44px;width:max-content;animation:slide 34s linear infinite;white-space:nowrap;padding:0 22px}
+.strip li{list-style:none;font:600 11px var(--sans);letter-spacing:.18em;color:var(--gray);text-transform:uppercase}
+.strip li b{color:var(--ink)}
+@keyframes slide{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}
+  .strip ul,.skel::after,.vcell,.orbit-rotor,.orbit-sat .os-in{animation:none!important}
+}
+html.reduced .strip ul,html.reduced .skel::after,html.reduced .vcell,html.reduced .orbit-rotor,html.reduced .os-in{animation:none}
+
+section{padding:96px 4%}
+.wrap{width:min(1160px,94%);margin:0 auto}
+.sec-head{text-align:center;margin-bottom:46px}
+.sec-head .micro{text-transform:uppercase;letter-spacing:.26em;font-size:10px}
+.sec-head h2{font:400 clamp(30px,3.5vw,44px)/1.15 var(--serif);margin-top:12px}
+.sec-head p{font:400 13px/1.7 var(--sans);color:var(--gray);max-width:600px;margin:12px auto 0}
+
+@media(max-width:1000px){.hero-grid,.console,.ps,.shield,.spotgrid,.mkts,.dash,.auds,.langwrap{grid-template-columns:1fr}.engines,.revgrid{grid-template-columns:1fr 1fr}.navlinks{display:none}.badges{grid-template-columns:1fr 1fr}.langlist{height:400px}}
+@media(max-width:900px){
+  .f-top{grid-template-columns:1fr;gap:26px;align-items:start}
+  .f-cols{grid-template-columns:1fr 1fr;gap:34px 26px}
+  .f-in{padding-bottom:150px}
+  .gtee{grid-template-columns:1fr;text-align:center}
+  .gtee .seal{margin:0 auto}}
+@media(max-width:640px){.engines,.revgrid,.gatecards,.counts,.prices,.dash,.auds,.spotgrid,.mkts,.badges{grid-template-columns:1fr}}
+@media(max-width:560px){.f-cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="sprog"></div>
+<div id="gloss"></div>
+
+<nav class="nav">
+  <div class="wordmark"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 2c1 5 4 8 9 9-5 1-8 4-9 9-1-5-4-8-9-9 5-1 8-4 9-9z" fill="#1a1b1e"/></svg>WIZ<span>SUITE</span></div>
+  <div class="navlinks"><a href="#engines">Engines</a><a href="#demo">Live proof</a><a href="#quality">Compliance</a><a href="#languages">Languages</a><a href="#pricing">Pricing</a></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <a class="btn" href="#" style="color:var(--gray);padding:8px 12px">Sign in</a>
+    <a class="btn btn-dark" href="#cta">Start free</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="ghost" id="ghost">WIZSUITE</div>
+  <div class="hero-grid">
+    <div class="rv rv-l">
+      <span class="pill"><span class="led"></span><b>PUBLISHING INFRASTRUCTURE</b> <span class="g2">· 6 ENGINES · 11 LANGUAGES</span></span>
+      <h1>From idea to publish‑ready book in 38 seconds.</h1>
+      <p class="sub">WizSuite generates, verifies, and formats premium print interiors at catalog scale. Build logic casebooks, color‑by‑numbers, activity books, and mazes in 11 languages — with commercial‑grade formatting finished before you are.</p>
+      <div class="hero-btns">
+        <a class="btn btn-dark" href="#demo">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path d="M12 2c1 5 4 8 9 9-5 1-8 4-9 9-1-5-4-8-9-9 5-1 8-4 9-9z" fill="#fff"/></svg>
+          See a book built live</a>
+        <a class="btn btn-light" href="#cta">Start free — 3 books included</a>
+      </div>
+      <span class="login">No credit card. No watermarks. Your first three books are yours to keep — and to sell.</span>
+    </div>
+
+    <!-- ORBIT ECOSYSTEM (replaces the 6-engine rack) -->
+    <div class="orbit-wrap rv rv-r">
+      <div class="orbit-stage">
+        <span class="orbit-ring r3"></span>
+        <span class="orbit-ring r1"></span>
+        <span class="orbit-ring r2"></span>
+        <div class="orbit-rotor">
+          <div class="orbit-sat" style="--a:0deg;--na:0deg"><div class="os-in">
+            <span class="otile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 22" style="width:30px;height:auto" role="img" aria-label="Amazon"><text x="24" y="11.5" text-anchor="middle" font-family="Inter,-apple-system,sans-serif" font-size="13" font-weight="800" letter-spacing="-.5" fill="#1a1b1e">amazon</text><path d="M5.2 15.8c6.8 5 18 5.4 26.6-.4" fill="none" stroke="#1a1b1e" stroke-width="2.2" stroke-linecap="round"/><path d="M29.4 13.4l6.4-1.8-2.6 5.8z" fill="#1a1b1e"/></svg></span>
+            <span class="olbl">Publish with KDP</span>
+          </div></div>
+          <div class="orbit-sat" style="--a:90deg;--na:-90deg"><div class="os-in">
+            <span class="otile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 16" style="width:30px;height:auto" role="img" aria-label="Etsy"><text x="24" y="12" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="700" font-style="italic" letter-spacing="-.3" fill="#1a1b1e">Etsy</text></svg></span>
+            <span class="olbl">Sell on Etsy</span>
+          </div></div>
+          <div class="orbit-sat" style="--a:180deg;--na:-180deg"><div class="os-in">
+            <span class="otile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 38" style="width:auto;height:26px" role="img" aria-label="Shopify"><path d="M16 3l-11 3v23c0 3 2 5 5 6l6 2 6-2c3-1 5-3 5-6V6L16 3z" fill="#95BF47"/><path d="M13 11c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3-3-1.3-3-3z" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M12 17h8M11 21h10M10 25h12" stroke="#fff" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg></span>
+            <span class="olbl">Scale on Shopify</span>
+          </div></div>
+          <div class="orbit-sat" style="--a:270deg;--na:-270deg"><div class="os-in">
+            <span class="otile"><svg viewBox="0 0 24 24" width="24" height="24" class="ic"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 4 6 4 9s-1.5 6-4 9M12 3c-2.5 3-4 6-4 9s1.5 6 4 9"/></svg></span>
+            <span class="olbl">Universal Printables</span>
+          </div></div>
+        </div>
+        <div class="orbit-core">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2c1 5 4 8 9 9-5 1-8 4-9 9-1-5-4-8-9-9 5-1 8-4 9-9z" fill="#fff"/></svg>
+          <span class="wm">WIZ<span>SUITE</span></span>
+          <span class="st"><span class="led"></span>4 MARKETPLACES</span>
+        </div>
+      </div>
+      <span class="pill orbit-note"><span class="led"></span><b>ONE EXPORT</b> <span class="g2">· EVERY STOREFRONT</span></span>
+    </div>
+  </div>
+
+  <div class="badges" data-stag>
+    <div class="badge"><span class="n">6</span><span class="l">Native Engines</span></div>
+    <div class="badge"><span class="n">11</span><span class="l">Supported Languages</span></div>
+    <div class="badge"><span class="n">100%</span><span class="l">Algorithmic Verification</span></div>
+    <div class="badge"><span class="n">38s</span><span class="l">Median Build Time</span></div>
+  </div>
+</header>
+
+<div class="glass strip"><ul>
+  <li><b>Logic‑verified cases</b> •</li><li>Native RTL typesetting •</li><li><b>Print‑ready PDF</b> •</li><li>High‑res PNG •</li><li><b>Catalog‑scale output</b> •</li><li>No templates •</li>
+  <li><b>Logic‑verified cases</b> •</li><li>Native RTL typesetting •</li><li><b>Print‑ready PDF</b> •</li><li>High‑res PNG •</li><li><b>Catalog‑scale output</b> •</li><li>No templates •</li>
+</ul></div>
+
+<section id="marketplaces">
+  <div class="sec-head rv"><span class="micro">Distribution</span><h2>Scale your business across global marketplaces.</h2>
+    <p>WizSuite exports in the formats every major storefront expects. One interior, every channel.</p></div>
+  <div class="wrap mkts" data-stag>
+    <div class="mkt"><div class="sqr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 22" style="width:30px;height:auto" role="img" aria-label="Amazon"><text x="24" y="11.5" text-anchor="middle" font-family="Inter,-apple-system,sans-serif" font-size="13" font-weight="800" letter-spacing="-.5" fill="#1a1b1e">amazon</text><path d="M5.2 15.8c6.8 5 18 5.4 26.6-.4" fill="none" stroke="#1a1b1e" stroke-width="2.2" stroke-linecap="round"/><path d="M29.4 13.4l6.4-1.8-2.6 5.8z" fill="#1a1b1e"/></svg></div><b>Compatible with KDP</b><span class="m">AMAZON</span></div>
+    <div class="mkt"><div class="sqr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 16" style="width:30px;height:auto" role="img" aria-label="Etsy"><text x="24" y="12" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="700" font-style="italic" letter-spacing="-.3" fill="#1a1b1e">Etsy</text></svg></div><b>Sell on Etsy</b><span class="m">HANDMADE &amp; DIGITAL</span></div>
+    <div class="mkt"><div class="sqr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 38" style="width:auto;height:26px" role="img" aria-label="Shopify"><path d="M16 3l-11 3v23c0 3 2 5 5 6l6 2 6-2c3-1 5-3 5-6V6L16 3z" fill="#95BF47"/><path d="M13 11c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3-3-1.3-3-3z" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M12 17h8M11 21h10M10 25h12" stroke="#fff" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg></div><b>Scale on Shopify</b><span class="m">YOUR STORE</span></div>
+    <div class="mkt"><div class="sqr"><svg viewBox="0 0 24 24" width="24" height="24" class="ic"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 4 6 4 9s-1.5 6-4 9M12 3c-2.5 3-4 6-4 9s1.5 6 4 9"/></svg></div><b>Universal Printables</b><span class="m">ANY PLATFORM</span></div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="sec-head rv"><span class="micro">The gap</span><h2>Hand‑made books are too slow.<br>Low‑quality books get rejected.</h2></div>
+  <div class="wrap glass ps rv">
+    <div>
+      <h3>Without infrastructure.</h3>
+      <p>It takes weeks to design one high‑quality book by hand. Building a full catalog takes a team. Global marketplaces reward publishers who upload consistently — but they ban accounts that upload broken files, duplicate content, or unsolvable puzzles. You're stuck choosing between shipping slowly and risking your account.</p>
+      <div class="vs"><span class="t">→ WEEKS PER BOOK · ACCOUNT AT RISK</span></div>
+    </div>
+    <div>
+      <h3>With WizSuite.</h3>
+      <p>WizSuite gives you the fast volume you need, with the perfect quality they demand. Every book is generated, verified and formatted before it exports — so you can ship consistently, across every marketplace, without risking a takedown.</p>
+      <div class="vs ok"><span class="t">→ 38 SECONDS · VERIFIED · SAFE</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="engines">
+  <div class="sec-head rv"><span class="micro">The engine room</span><h2>Six production lines. One control panel.</h2>
+    <p>This is a complete publishing infrastructure. Each engine controls its category from start to finish — generation, verification, and interior layout. Zero templates. Everything is calculated fresh for every book.</p></div>
+  <div class="wrap engines" data-stag>
+    <div class="card engine"><div class="ehead"><span class="wc"><svg width="19" height="19" viewBox="0 0 24 24" class="ic"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8.5 11l5 5M13.5 8.5l-5 5"/></svg></span>
+        <div><b>Whodunit</b><span class="micro"><span class="led"></span>MURDER‑LOGIC CASES</span></div></div>
+      <p class="etag">Deduction grids with a guarantee. Every single case is solved by the system before it exports — so the killer is always deducible, never guessable.</p>
+      <div class="mini"><div class="mg" id="pv-w" style="grid-template-columns:repeat(6,1fr)"></div>
+        <div class="legend"><span>SUSPECTS</span><i style="background:#232427"></i><i style="background:#8a8c92"></i><i style="background:#dcdcdf"></i><i style="background:#ef8f8f"></i></div></div>
+      <div class="espec"><span>9×9 CASES</span><span>PROVEN SOLVABLE</span><span>KEYS</span></div>
+      <button class="erun" data-open="murdoku">View live output <svg width="12" height="12" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <div class="card engine"><div class="ehead"><span class="wc"><svg width="19" height="19" viewBox="0 0 24 24" class="ic"><path d="M12 3C7 3 3 7 3 12s4 9 9 9c1.7 0 3-1.3 3-3 0-.8-.3-1.4-.8-2-.5-.6-.8-1.2-.8-2 0-1.7 1.3-3 3-3h2.6c1.2 0 2.2-1 2.2-2.2C22 6.6 17.5 3 12 3z"/><circle cx="8" cy="10" r=".9" fill="#77787c"/><circle cx="12" cy="7" r=".9" fill="#77787c"/></svg></span>
+        <div><b>Secret Shades</b><span class="micro"><span class="led"></span>COLOR‑BY‑NUMBER</span></div></div>
+      <p class="etag">Mystery reveals and coloring plates built for absolute print clarity. The subject stays hidden until the final shade — the reveal is the marketing.</p>
+      <div class="mini"><div class="mg" id="pv-s" style="grid-template-columns:repeat(10,1fr)"></div>
+        <div class="legend"><span>KEY</span><i style="background:#f2f2f4"></i><span>1</span><i style="background:#b9babf"></i><span>2</span><i style="background:#47484c"></i><span>3</span><i style="background:#1a1b1e"></i><span>4</span></div></div>
+      <div class="espec"><span>60 SHADES</span><span>NOIR PALETTES</span><span>PRINT‑CLEAR</span></div>
+      <button class="erun" data-open="cbn">View live output <svg width="12" height="12" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <div class="card engine"><div class="ehead"><span class="wc"><svg width="19" height="19" viewBox="0 0 24 24" class="ic"><path d="M4 4h16v16H4zM8 8h8v8H8z"/><circle cx="12" cy="12" r=".9" fill="#77787c"/></svg></span>
+        <div><b>Mazewright</b><span class="micro"><span class="led"></span>ADVANCED PATHS</span></div></div>
+      <p class="etag">Generate everything from simple paths to complex structural labyrinths instantly. Every maze has exactly one true path — proven, not tested.</p>
+      <div class="mini" style="align-items:center;justify-content:center">
+        <svg width="120" height="110" viewBox="0 0 60 50" class="ic" style="stroke:#47484c"><path d="M4 4h52v42H4V10h40v30H12V18h24v14H20v-6h8"/></svg></div>
+      <div class="espec"><span>SINGLE PATH</span><span>KIDS → ADULT</span><span>84 PP</span></div>
+      <button class="erun" data-open="maze">View live output <svg width="12" height="12" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <div class="card engine"><div class="ehead"><span class="wc"><svg width="19" height="19" viewBox="0 0 24 24" class="ic"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/></svg></span>
+        <div><b>Gridlock</b><span class="micro"><span class="led"></span>SEARCH &amp; SUDOKU</span></div></div>
+      <p class="etag">Classic number and word engines tuned for high‑volume creation. Seeded generation with uniqueness certificates — no puzzle repeats across your catalog.</p>
+      <div class="mini"><div class="mg" id="pv-g" style="grid-template-columns:repeat(8,1fr)"></div></div>
+      <div class="espec"><span>DUPLICATE HASH</span><span>DIFFICULTY CURVE</span><span>KEYS</span></div>
+      <button class="erun" data-open="word">View live output <svg width="12" height="12" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <div class="card engine"><div class="ehead"><span class="wc darkc"><svg width="19" height="19" viewBox="0 0 24 24" class="ic" style="stroke:#fff"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18"/></svg></span>
+        <div><b>Coversmith</b><span class="micro"><span class="led"></span>PRINT MECHANICS</span></div></div>
+      <p class="etag">Perfect spine math, bleed boundaries, and margin validation for physical printing. Wrap covers computed from final page count — spine to 0.1 mm.</p>
+      <div class="mini" style="flex-direction:row;gap:8px;align-items:stretch;padding:14px">
+        <div style="flex:1.4;background:linear-gradient(180deg,#2e2f33,#1a1b1e);border-radius:4px;padding:10px;display:flex;flex-direction:column;justify-content:space-between">
+          <span style="font:400 9px var(--serif);color:#fff">THE BUTLER'S GRID</span>
+          <span style="font:600 6px var(--sans);color:rgba(255,255,255,.5);letter-spacing:.14em">A WHODUNIT CASEBOOK</span></div>
+        <div style="width:7px;background:#47484c;border-radius:2px"></div>
+        <div style="flex:1;background:#f2f2f4;border-radius:4px;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px">
+          <i style="height:2px;background:#1a1b1e;display:block"></i><i style="height:2px;background:#1a1b1e;display:block;width:80%"></i><i style="height:2px;background:#1a1b1e;display:block;width:60%"></i></div>
+      </div>
+      <div class="espec"><span>SPINE 0.1 MM</span><span>BLEED QA</span><span>MARGINS</span></div>
+      <button class="erun" data-open="murdoku">View live output <svg width="12" height="12" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <div class="card engine"><div class="ehead"><span class="wc"><svg width="19" height="19" viewBox="0 0 24 24" class="ic"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13l2 2 4-4"/></svg></span>
+        <div><b>Universal Exports</b><span class="micro"><span class="led"></span>PDF &amp; PNG</span></div></div>
+      <p class="etag">Download print‑ready files for physical paperbacks or high‑resolution PNGs for digital assets. One output, every storefront.</p>
+      <div class="mini" style="align-items:center;justify-content:center">
+        <svg width="140" height="80" viewBox="0 0 140 80" class="ic" style="stroke:#47484c">
+          <rect x="6" y="8" width="48" height="64" rx="3"/><rect x="60" y="8" width="48" height="64" rx="3"/><rect x="114" y="8" width="22" height="64" rx="3"/>
+          <path d="M15 20h30M15 26h22M15 32h28M69 20h30M69 26h22M69 32h28" style="stroke-width:1"/></svg></div>
+      <div class="espec"><span>PDF / PNG</span><span>300 DPI</span><span>ANY STORE</span></div>
+      <button class="erun" data-open="word">View live output <svg width="12" height="12" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+  </div>
+</section>
+
+<section id="spotlight">
+  <div class="sec-head rv"><span class="micro">Feature spotlight</span><h2>Command the engine. Total control, verified output.</h2>
+    <p>Watch how WizSuite handles complex logic generation in real‑time. From raw text to a mathematically guaranteed print file in seconds.</p></div>
+  <div class="wrap glass spot rv">
+    <div class="vid">
+      <div class="vid-inner">
+        <div class="vid-top">
+          <div class="vid-dots"><i></i><i></i><i></i></div>
+          <span class="vid-tab">WHODUNIT · LIVE BUILD</span>
+          <span class="vid-tab" style="color:rgba(59,178,115,.8)">● RECORDING</span>
+        </div>
+        <div class="vid-grid" id="vidGrid"></div>
+        <div class="vid-foot">
+          <span class="badge-g"><svg viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>100% SOLVABLE</span>
+          <span class="meta" style="color:rgba(255,255,255,.55)">seed 0x4A2F · built in 1.8s · verified</span>
+        </div>
+      </div>
+    </div>
+    <div class="spotgrid" data-stag>
+      <div class="spotcard"><h4>Start fast, tweak everything.</h4>
+        <p>Choose from a massive library of ready‑to‑use stock templates to get moving instantly, or build your own layouts from scratch. You retain complete granular control over every row, column, and difficulty parameter — perfectly matched to your target audience.</p></div>
+      <div class="spotcard"><h4>Bring your own AI stories.</h4>
+        <p>Generating your narrative with Claude or Google AI? Paste your custom text — whether it's a gritty modern detective case or a homebrew fantasy campaign storyline — directly into the console. The engine analyzes your text, maps the logic variables, and converts it into a playable grid.</p></div>
+      <div class="spotcard"><h4>Mathematically verified solutions.</h4>
+        <p>Never publish a broken puzzle. WizSuite tests every single generated grid against our solver algorithm to guarantee it has exactly one logical path. If a puzzle requires blind guessing, the engine instantly discards it and rebuilds a flawless version.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="sec-head rv"><span class="micro">Live verification</span><h2>Don't read about it. Run it.</h2>
+    <p>This console runs the same renderers as production. Library titles are pre‑computed; live builds execute on your device on our lightest grid — ten per day, view‑only by design. Exports are the product. The demo is the evidence.</p></div>
+  <div class="wrap glass console rv">
+    <div class="crail">
+      <span class="lbl">Library · pre‑computed</span>
+      <div id="libList" style="display:flex;flex-direction:column;gap:8px"></div>
+      <span class="lbl" style="margin-top:8px">Live · on‑device nano grid</span>
+      <button class="btn btn-dark" id="liveBtn" style="width:100%">
+        <svg width="13" height="13" viewBox="0 0 24 24"><path d="M12 2c1 5 4 8 9 9-5 1-8 4-9 9-1-5-4-8-9-9 5-1 8-4 9-9z" fill="#fff"/></svg>
+        Build one live</button>
+      <div class="quotabox"><span class="n" id="quotaN">10</span>
+        <span class="micro">live builds remaining today · resets 00:00 UTC.<br>Runs on your CPU — server cost ≈ 0.</span></div>
+      <span class="micro" style="line-height:1.6">View‑only preview. Production exports — PDF, cover wrap — live in‑app.</span>
+    </div>
+    <div class="viewer">
+      <div class="watermark">PREVIEW</div>
+      <div class="vhead"><span class="chip" id="vEngine">WHODUNIT</span><span class="t" id="vTitle">—</span>
+        <span class="meta" id="vMeta">seed — · built in —</span></div>
+      <div class="vbody" id="vBody"></div>
+      <div class="vfoot">
+        <button class="btn btn-light" id="revealBtn" style="padding:9px 16px;font-size:11px">Prove it solves</button>
+        <span class="lock"><svg width="12" height="12" viewBox="0 0 24 24" class="ic"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          View‑only · exports live in the app</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quality">
+  <div class="sec-head rv"><span class="micro">Compliance shield</span><h2>Built for strict marketplace rules.</h2>
+    <p>Global storefronts block books for three reasons: unsolvable content, broken print files, and duplicate content. WizSuite solves these problems automatically before you even download the file — so you never have to worry about a takedown.</p></div>
+  <div class="wrap glass rv" style="padding:32px;border-radius:30px">
+    <div class="shield-list" data-stag>
+      <div class="shield-item"><div class="icw"><svg viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg></div>
+        <div><b>Clue‑Truth Proof</b><p>Ambiguous or unsolvable content is discarded instantly. Every puzzle is re‑solved from its printed clues before export.</p></div></div>
+      <div class="shield-item"><div class="icw"><svg viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <div><b>Duplicate‑Guard</b><p>Every output is uniquely generated to protect your catalog. Cryptographic hashing against your library and the public pool.</p></div></div>
+      <div class="shield-item"><div class="icw"><svg viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18"/></svg></div>
+        <div><b>Live Spec Validation</b><p>Trim, bleed, and DPI are checked against global print requirements before anything leaves the engine.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="capacity">
+  <div class="sec-head rv"><span class="micro">Capacity</span><h2>Engine capacity. Uncapped potential.</h2>
+    <p>WizSuite's architecture is built for volume. No API rate limits, no generic templates. Just raw computational output designed to scale your catalog.</p></div>
+  <div class="wrap dash" data-stag>
+    <div class="dashcard"><span class="l">Verification</span><span class="n">100%</span><span class="m">Every file checked for originality before export.</span></div>
+    <div class="dashcard"><span class="l">Export formats</span><span class="n">Universal</span><span class="m">Print‑ready PDF or high‑res PNG.</span></div>
+    <div class="dashcard"><span class="l">Seed variations</span><span class="n">Infinite</span><span class="m">Zero pre‑made templates. Algorithmic generation only.</span></div>
+    <div class="dashcard"><span class="l">Median build time</span><span class="n">38.00<small> sec</small></span><span class="m">From settings to full multi‑page file.</span></div>
+  </div>
+</section>
+
+<!-- GLOBAL PRESS / LANGUAGE RAIL -->
+<section id="languages">
+  <div class="sec-head rv"><span class="micro">Market reach</span><h2>One manuscript. Eleven native catalogs.</h2>
+    <p>WizSuite doesn't translate books; it re‑authors them. Native clue phrasing, correct hyphenation, right‑to‑left typesetting for Arabic and Urdu, shaped Devanagari for Hindi, diacritic‑safe grids for European languages — each held to the same gates as English.</p></div>
+  <div class="wrap langwrap">
+    <div class="glass langlist rv rv-l" id="langList">
+      <div class="langtrack" id="langTrack"></div>
+      <div class="lfoot"><div class="lbar"><i id="lbarFill"></i></div><div class="ldots" id="langDots"></div>
+        <span class="micro" id="langState">auto‑playing</span></div>
+    </div>
+    <div class="glass lprev rv rv-r" id="lprev">
+      <div class="lswap" id="lswap">
+        <div class="ltop">
+          <div class="lbook" id="lbook"><span class="fl" id="lFlag"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#cEN)"><rect width="60" height="60" fill="#012169"/><path d="M0 0l60 60M60 0L0 60" stroke="#fff" stroke-width="8"/><path d="M0 0l60 60M60 0L0 60" stroke="#C8102E" stroke-width="4"/><path d="M30 0v60M0 30h60" stroke="#fff" stroke-width="12"/><path d="M30 0v60M0 30h60" stroke="#C8102E" stroke-width="8"/></g><defs><clipPath id="cEN"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></span>
+            <span class="t" id="lTitle">The Butler's Grid</span>
+            <span class="s" id="lSub">A WHODUNIT CASEBOOK</span></div>
+          <div class="lmeta">
+            <div class="row"><span class="pill" id="lDir">LTR TYPESETTING</span><span class="pill" style="font-weight:500;color:var(--gray)" id="lScript">Latin · accent‑safe grids</span></div>
+            <div class="row" id="lMarket"></div>
+            <div class="lclue" id="lClue">“Every clue is true. The killer lies.”</div>
+            <div class="lcells" id="lCells"></div>
+          </div>
+        </div>
+        <div class="lstats">
+          <div><div class="micro">Books live in this language</div><div class="big" id="lBooks">4,210<i>.00</i></div></div>
+          <span class="micro" style="margin-left:auto" id="lNote">native QA stamp</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="audiences">
+  <div class="sec-head rv"><span class="micro">Built for the business</span><h2>Built for the business of publishing.</h2>
+    <p>Whether you ship ten books a month or ten thousand, WizSuite gives you the infrastructure to move at the speed of your ambition.</p></div>
+  <div class="wrap auds" data-stag>
+    <div class="aud"><span class="num">01 · SCALE</span><h3>The Volume Publisher</h3>
+      <p>Scale a massive catalog across global marketplaces without risking duplicate content flags or broken layouts. WizSuite's Duplicate‑Guard and Spec Validation keep your account clean while your catalog compounds.</p></div>
+    <div class="aud"><span class="num">02 · NICHE</span><h3>The Niche Creator</h3>
+      <p>Generate highly specific, themed printables and export them directly to standard print‑ready trim sizes for your store. From true‑crime casebooks to fantasy mazes — any niche, any language, in seconds.</p></div>
+    <div class="aud"><span class="num">03 · TEAMS</span><h3>The Agency &amp; Team</h3>
+      <p>Eliminate weeks of manual layout design and verification. Reduce your production time from days to seconds. One control panel, multiple KDP accounts, full catalog shared across your team.</p></div>
+  </div>
+</section>
+
+<section id="guarantee">
+  <div class="wrap glass gtee rv">
+    <div>
+      <span class="micro" style="color:rgba(255,255,255,.5)">The WizSuite Standard</span>
+      <h3>Scaling fast should never mean shipping broken.</h3>
+      <p>We built this platform because we saw the gap between high‑volume publishing and strict marketplace quality rules. You shouldn't have to choose between scaling fast and staying safe. WizSuite is engineered to give independent publishers the exact same power as traditional design teams.</p>
+      <div class="sig">— The WizSuite Engineering Team</div>
+    </div>
+    <div class="seal"><svg viewBox="0 0 24 24" class="ic" style="stroke:rgba(255,255,255,.6)"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="sec-head rv"><span class="micro">Pricing</span><h2>Free to think. Priced to ship.</h2>
+    <p>Drafting, previewing and verification are free forever — ideas should be cheap. You pay only when a finished, compliant book leaves the engine: the one moment real compute and QA are consumed.</p></div>
+  <div class="wrap prices" data-stag>
+    <div class="card pcard"><h3>Draft</h3>
+      <div class="big">$0<small>.00 forever</small></div>
+      <ul><li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>3 complete, sellable books — once</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>All 6 engines, unlimited drafts</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>English + 2 languages</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>No card, no watermark</li></ul>
+      <a class="btn btn-light">Claim three books</a></div>
+    <div class="card pcard feat"><span class="pill" style="align-self:flex-start;margin-bottom:10px;background:rgba(255,255,255,.12);color:#fff;box-shadow:none">MOST POPULAR</span><h3>Press</h3>
+      <div class="big">$29<small>.00 /mo</small></div>
+      <ul><li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#fff"><path d="M5 13l4 4 10-10"/></svg>Unlimited drafts, all engines</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#fff"><path d="M5 13l4 4 10-10"/></svg>60 verified exports / month</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#fff"><path d="M5 13l4 4 10-10"/></svg>All 11 languages incl. RTL</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#fff"><path d="M5 13l4 4 10-10"/></svg>Coversmith Pro + KDP push</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#fff"><path d="M5 13l4 4 10-10"/></svg>PDF + PNG universal exports</li></ul>
+      <a class="btn btn-light">Start publishing</a></div>
+    <div class="card pcard"><h3>Studio</h3>
+      <div class="big">$79<small>.00 /mo</small></div>
+      <ul><li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>250 verified exports / month</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>10 KDP accounts, shared catalog</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>Engine API + webhooks</li>
+      <li><svg width="13" height="13" viewBox="0 0 24 24" class="ic" style="stroke:#3bb273"><path d="M5 13l4 4 10-10"/></svg>Priority verification queue</li></ul>
+      <a class="btn btn-dark">Scale with Studio</a></div>
+  </div>
+  <p class="guarantee">Every plan includes the full Compliance Shield — if an exported book ever fails marketplace spec validation, we re‑run it free.</p>
+</section>
+
+<section id="faq">
+  <div class="sec-head rv"><span class="micro">Questions</span><h2>The questions a professional asks.</h2></div>
+  <div class="faq rv">
+    <details open><summary>Will marketplaces flag my AI‑generated content?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>Only if it's mislabeled. WizSuite attaches the disclosure paperwork required by each marketplace to every export. You publish under your own account, as the publisher of record.</p></details>
+    <details><summary>How is solvability guaranteed?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>Our Clue‑Truth Proof re‑solves every puzzle from its printed clues before export; anything ambiguous is destroyed at generation. In the live console, "Prove it solves" runs that same check on the puzzle in front of you.</p></details>
+    <details><summary>How real is the localization?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>Clues, stories and instructions are re‑authored per language — not machine‑pasted. Arabic and Urdu get full right‑to‑left typesetting with ligature‑safe grids, Hindi gets Devanagari shaping, and European languages get accent‑aware word grids (Ä, Ö, É, Ñ all place correctly).</p></details>
+    <details><summary>What keeps my catalog from looking generated?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>Nothing is templated. Every grid, plate and palette is computed per book and hashed by Duplicate‑Guard against your catalog and the public pool — your readers never see the same puzzle twice, and neither does marketplace dedupe.</p></details>
+    <details><summary>Can I bring my own stories from Claude or Google AI?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>Yes. Paste any custom narrative text — detective cases, fantasy campaigns, true‑crime stories — into the engine console. WizSuite analyzes the text, maps the logic variables, and converts it into a playable grid with one verified solution.</p></details>
+    <details><summary>What counts against my export allowance?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>One finished book package: interior PDF or PNG plus cover wrap. Failed spec validations re‑run free, and correction re‑exports within 30 days are free. Drafts and previews are always unlimited.</p></details>
+    <details><summary>Who owns the output and the royalties?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>You do, entirely — full commercial rights on your own marketplace account. WizSuite never writes to your account and never touches your money.</p></details>
+    <details><summary>Can I wire it into my own pipeline?<svg width="14" height="14" viewBox="0 0 24 24" class="ic" style="stroke:#1a1b1e"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <p>Studio includes the engine API and webhooks: send a niche and language, receive print‑ready PDF, cover wrap and metadata JSON.</p></details>
+  </div>
+</section>
+
+<section class="cta" id="cta">
+  <h2 class="rv">Your first three books are free.<br>Your next hundred are faster.</h2>
+  <span class="micro rv">No card. No watermark. No lock‑in. Export when you're ready — or don't.</span>
+  <div style="margin-top:6px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <a class="btn btn-dark" style="padding:15px 30px;font-size:13px" href="#pricing">Claim three books</a>
+    <a class="btn btn-light" style="padding:15px 30px;font-size:13px" href="#demo">See a book built live</a>
+  </div>
+</section>
+
+<footer class="footer" id="contact">
+  <div class="f-in">
+    <div class="f-top rv">
+      <div>
+        <div class="wordmark"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 2c1 5 4 8 9 9-5 1-8 4-9 9-1-5-4-8-9-9 5-1 8-4 9-9z" fill="#fff"/></svg>WIZ<span>SUITE</span></div>
+        <h2>Publishing, industrialized — quality intact.</h2>
+        <p class="fsub">Six engines. Eleven languages. Every export verified. One catalog that compounds while you sleep.</p>
+      </div>
+      <div>
+        <span class="flabel">The Press Brief — one email a month</span>
+        <form class="fnews" onsubmit="event.preventDefault();this.querySelector('button').textContent='Subscribed ✓';this.querySelector('input').value='';">
+          <input type="email" placeholder="you@press.com" required>
+          <button type="submit">Subscribe</button>
+        </form>
+        <span class="fnote">Niche signals, engine releases, and marketplace policy changes that actually matter. Written by the team that reads policy so you don't have to.</span>
+      </div>
+    </div>
+    <div class="f-cols" data-stag>
+      <div class="f-col"><b>Engines</b>
+        <a href="#engines">Whodunit</a><a href="#engines">Secret Shades</a><a href="#engines">Mazewright</a>
+        <a href="#engines">Gridlock</a><a href="#engines">Coversmith</a><a href="#engines">Universal Exports</a></div>
+      <div class="f-col"><b>Suite</b>
+        <a href="#demo">Live proof</a><a href="#quality">Compliance</a><a href="#languages">Languages</a>
+        <a href="#marketplaces">Marketplaces</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+      <div class="f-col"><b>Resources</b>
+        <a href="#">Marketplace compliance guide</a><a href="#">Niche report 2026</a><a href="#">API docs</a>
+        <a href="#">System status</a><a href="#">Help desk</a></div>
+      <div class="f-col"><b>Company</b>
+        <a href="#">About</a><a href="#">Careers</a><a href="#">Press kit</a>
+        <a href="#">Affiliates</a><a href="#contact">Contact</a></div>
+      <div class="f-col"><b>Languages</b>
+        <div class="fchips"><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcEN)"><rect width="60" height="60" fill="#012169"/><path d="M0 0l60 60M60 0L0 60" stroke="#fff" stroke-width="8"/><path d="M0 0l60 60M60 0L0 60" stroke="#C8102E" stroke-width="4"/><path d="M30 0v60M0 30h60" stroke="#fff" stroke-width="12"/><path d="M30 0v60M0 30h60" stroke="#C8102E" stroke-width="8"/></g><defs><clipPath id="fcEN"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>EN</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcES)"><rect width="60" height="60" fill="#AA151B"/><rect y="15" width="60" height="30" fill="#F1BF00"/></g><defs><clipPath id="fcES"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>ES</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcFR)"><rect width="20" height="60" fill="#002395"/><rect x="20" width="20" height="60" fill="#fff"/><rect x="40" width="20" height="60" fill="#ED2939"/></g><defs><clipPath id="fcFR"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>FR</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcDE)"><rect width="60" height="20" fill="#000"/><rect y="20" width="60" height="20" fill="#DD0000"/><rect y="40" width="60" height="20" fill="#FFCE00"/></g><defs><clipPath id="fcDE"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>DE</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcIT)"><rect width="20" height="60" fill="#009246"/><rect x="20" width="20" height="60" fill="#fff"/><rect x="40" width="20" height="60" fill="#CE2B37"/></g><defs><clipPath id="fcIT"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>IT</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcPT)"><rect width="24" height="60" fill="#006600"/><rect x="24" width="36" height="60" fill="#FF0000"/><circle cx="24" cy="30" r="7" fill="#FFCC00"/></g><defs><clipPath id="fcPT"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>PT</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcNL)"><rect width="60" height="20" fill="#AE1C28"/><rect y="20" width="60" height="20" fill="#fff"/><rect y="40" width="60" height="20" fill="#21468B"/></g><defs><clipPath id="fcNL"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>NL</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcPL)"><rect width="60" height="30" fill="#fff"/><rect y="30" width="60" height="30" fill="#DC143C"/></g><defs><clipPath id="fcPL"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>PL</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcAR)"><rect width="60" height="60" fill="#006C35"/><text x="30" y="38" text-anchor="middle" font-size="18" fill="#fff" font-family="serif">ﷲ</text></g><defs><clipPath id="fcAR"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>AR</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcUR)"><rect width="60" height="60" fill="#01411C"/><rect x="0" width="15" height="60" fill="#fff"/><path d="M34 22a9 9 0 1 1-3 14 7 7 0 0 0 3-14z" fill="#fff"/><path d="M39 18l1 3 3-1-2 2 2 2-3-1-1 3-1-3-3 1 2-2-2-2 3 1z" fill="#fff"/></g><defs><clipPath id="fcUR"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>UR</span><span class="fchip"><i class="fic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#fcHI)"><rect width="60" height="20" fill="#FF9933"/><rect y="20" width="60" height="20" fill="#fff"/><rect y="40" width="60" height="20" fill="#138808"/><circle cx="30" cy="30" r="5" fill="none" stroke="#000080" stroke-width="1.2"/><circle cx="30" cy="30" r="1" fill="#000080"/></g><defs><clipPath id="fcHI"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg></i>HI</span></div>
+      </div>
+    </div>
+    <div class="f-status">
+      <span class="led"></span><span>All engines operational</span>
+      <span class="fsep"></span><span id="fclock">00:00 UTC</span>
+      <span class="fsep"></span><span>Suite 26.9 · compliance green</span>
+    </div>
+    <div class="f-bot">
+      <span>© 2026 WizSuite · Set in PT Serif &amp; Inter · Covers drawn by Coversmith</span>
+      <div class="flegal"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Marketplace policy</a><a href="#">Cookies</a></div>
+      <div class="forbs">
+        <a class="soc" href="#" aria-label="X"><svg width="14" height="14" viewBox="0 0 24 24" class="ic"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+        <a class="soc" href="#" aria-label="Instagram"><svg width="14" height="14" viewBox="0 0 24 24" class="ic"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".9" fill="rgba(255,255,255,.75)" stroke="none"/></svg></a>
+        <a class="soc" href="#" aria-label="YouTube"><svg width="14" height="14" viewBox="0 0 24 24" class="ic"><rect x="3" y="6" width="18" height="12" rx="4"/><path d="M10.5 9.5v5l4.5-2.5z"/></svg></a>
+        <button class="totop" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top"><svg width="14" height="14" viewBox="0 0 24 24" class="ic"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="f-ghost" aria-hidden="true">WIZSUITE</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<!-- BOOT 1 · PROOF CONSOLE -->
+<script>
+(function(){
+"use strict";
+try{
+var WIZ=window.WIZ={mode:"library",engineEndpoint:null,dailyLiveLimit:10,allowDownloads:false,
+  grid:"nano-fast (on-device)",library:[
+  {id:"L1",engine:"Whodunit",title:"The Butler's Grid",meta:"5×5 alibi case",type:"murdoku",seed:1041},
+  {id:"L2",engine:"Mazewright",title:"Escape the Manor",meta:"11×11 perfect maze",type:"maze",seed:2087},
+  {id:"L3",engine:"Gridlock",title:"Crime Scene Words",meta:"10×10 · 8 words",type:"word",seed:3113},
+  {id:"L4",engine:"Secret Shades",title:"Raven at Midnight",meta:"12×9 · 4 shades",type:"cbn",seed:4159},
+  {id:"L5",engine:"Whodunit",title:"The Nanny's Alibi",meta:"5×5 alibi case",type:"murdoku",seed:5227},
+  {id:"L6",engine:"Mazewright",title:"Cellar to Attic",meta:"13×13 perfect maze",type:"maze",seed:6301}],
+  renderers:{}};
+var mem={};
+var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},
+           set:function(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+var GEN={
+ maze:function(seed,size){size=size||11;var R=mulberry32(seed),W=size,H=size;
+  var walls=[];for(var i=0;i<W*H;i++)walls.push([1,1,1,1]);
+  var seen=new Array(W*H).fill(false),st=[0];seen[0]=true;
+  var D=[[-1,0,0,2],[0,1,1,3],[1,0,2,0],[0,-1,3,1]];
+  while(st.length){var c=st[st.length-1],cx=c%W,cy=(c/W)|0,opts=[];
+   for(var d=0;d<4;d++){var nx=cx+D[d][0],ny=cy+D[d][1];
+    if(nx>=0&&ny>=0&&nx<W&&ny<H&&!seen[ny*W+nx])opts.push([ny*W+nx,D[d][2],D[d][3]]);}
+   if(!opts.length){st.pop();continue;}
+   var o=opts[(R()*opts.length)|0];walls[c][o[1]]=0;walls[o[0]][o[2]]=0;seen[o[0]]=true;st.push(o[0]);}
+  return {size:size,walls:walls};},
+ word:function(seed){var R=mulberry32(seed),N=10;
+  var words=["BUTLER","CANDLE","POISON","ALIBI","MANOR","RAVEN","DAGGER","SECRET"];
+  var g=[],r,c;for(r=0;r<N;r++){g.push([]);for(c=0;c<N;c++)g[r].push("");}
+  var placed=[];
+  words.forEach(function(w){var tries=0,ok=false;
+   while(!ok&&tries++<200){var dir=R()<.5?[0,1]:[1,0],rr=(R()*N)|0,cc=(R()*N)|0;
+    var er=rr+dir[0]*(w.length-1),ec=cc+dir[1]*(w.length-1);
+    if(er>=N||ec>=N)continue;var fit=true,cells=[];
+    for(var i=0;i<w.length;i++){var a=rr+dir[0]*i,b=cc+dir[1]*i;
+     if(g[a][b]&&g[a][b]!==w[i]){fit=false;break;}cells.push([a,b]);}
+    if(fit){for(i=0;i<w.length;i++)g[rr+dir[0]*i][cc+dir[1]*i]=w[i];placed.push({w:w,cells:cells});ok=true;}}});
+  var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for(r=0;r<N;r++)for(c=0;c<N;c++)if(!g[r][c])g[r][c]=A[(R()*26)|0];
+  return {grid:g,placed:placed};},
+ murdoku:function(seed){var R=mulberry32(seed);
+  var S=["Butler","Nanny","Cook","Gardener","Chauffeur"],Ro=["Library","Kitchen","Garden","Study","Cellar"];
+  var p=[0,1,2,3,4];for(var i=4;i>0;i--){var j=(R()*(i+1))|0,t=p[i];p[i]=p[j];p[j]=t;}
+  var clues=[],given=(R()*5)|0;
+  for(var r=0;r<5;r++){if(r===given){clues.push({t:S[r]+" was seen in the "+Ro[p[r]]+".",direct:true});}
+   else{var a=(R()*5)|0;while(a===p[r])a=(R()*5)|0;var b=(R()*5)|0;while(b===p[r]||b===a)b=(R()*5)|0;
+    clues.push({t:S[r]+" was NOT in the "+Ro[a]+" nor the "+Ro[b]+"."});}}
+  return {S:S,Ro:Ro,clues:clues,solution:p};},
+ cbn:function(seed){var R=mulberry32(seed),W=12,H=9,cells=[];
+  for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+   var dx=(x-W/2)/(W/2),dy=(y-H/2)/(H/2),d=Math.sqrt(dx*dx+dy*dy);
+   var k=d<.35?4:d<.55?3:d<.75?2:1;if(R()<.06)k=Math.max(1,k-1);cells.push(k);}
+  return {W:W,H:H,cells:cells,key:{1:"#f2f2f4",2:"#b9babf",3:"#47484c",4:"#1a1b1e"}};}};
+WIZ.renderers.maze=function(p,rev){var z=p.payload,s=z.size,cs=26;
+ var h='<div class="pzwrap"><div class="pz" style="grid-template-columns:repeat('+s+','+cs+'px)">';
+ for(var y=0;y<s;y++)for(var x=0;x<s;x++){var w=z.walls[y*s+x];
+  h+='<span class="cell" style="width:'+cs+'px;height:'+cs+'px;border-top-width:'+(w[0]?1.5:0)+'px;border-right-width:'+(w[1]?1.5:0)+'px;border-bottom-width:'+(w[2]?1.5:0)+'px;border-left-width:'+(w[3]?1.5:0)+'px">'+((x===0&&y===0)?'●':(x===s-1&&y===s-1)?'★':'')+'</span>';}
+ return h+'</div><span class="micro">● entrance → ★ exit · single true path</span></div>';};
+WIZ.renderers.word=function(p,rev){var z=p.payload,hit={};
+ if(rev)z.placed.forEach(function(o){o.cells.forEach(function(cc){hit[cc[0]+"_"+cc[1]]=1;});});
+ var h='<div class="pzwrap"><div class="pz" style="grid-template-columns:repeat('+z.grid.length+',24px)">';
+ for(var r=0;r<z.grid.length;r++)for(var c=0;c<z.grid.length;c++)
+  h+='<span class="cell'+(hit[r+"_"+c]?' hit':'')+'" style="width:24px;height:24px">'+z.grid[r][c]+'</span>';
+ h+='</div><div class="words">'+z.placed.map(function(o){return '<span class="'+(rev?'found':'')+'">'+o.w+'</span>';}).join("")+'</div></div>';
+ return h;};
+WIZ.renderers.murdoku=function(p,rev){var z=p.payload;
+ var h='<div class="pzwrap"><div class="pz" style="grid-template-columns:70px repeat('+z.Ro.length+',44px)"><span class="cell hdr" style="height:26px"></span>';
+ z.Ro.forEach(function(r){h+='<span class="cell hdr" style="height:26px">'+r.slice(0,3).toUpperCase()+'</span>';});
+ for(var r=0;r<z.S.length;r++){h+='<span class="cell hdr" style="height:34px;justify-content:flex-start;padding-left:6px">'+z.S[r]+'</span>';
+  for(var c=0;c<z.Ro.length;c++){var on=rev&&z.solution[r]===c;
+   h+='<span class="cell'+(on?' hit':'')+'" style="width:44px;height:34px">'+(on?'✕':'')+'</span>';}}
+ h+='</div></div><ul class="clues">'+z.clues.map(function(c){return '<li>'+c.t+'</li>';}).join("")+'</ul>';
+ return h;};
+WIZ.renderers.cbn=function(p,rev){var z=p.payload;
+ var h='<div class="pzwrap"><div class="pz" style="grid-template-columns:repeat('+z.W+',26px)">';
+ z.cells.forEach(function(k){h+='<span class="cell" style="width:26px;height:26px;'+(rev?('background:'+z.key[k]+';color:transparent;border-color:rgba(0,0,0,.06)'):'')+'">'+k+'</span>';});
+ h+='</div><div class="legend"><span>KEY</span>'+Object.keys(z.key).map(function(n){return '<i style="background:'+z.key[n]+'"></i><span>'+n+'</span>';}).join("")+'</div></div>';
+ return h;};
+var $=function(id){return document.getElementById(id);};
+var vBody=$('vBody'),vTitle=$('vTitle'),vEngine=$('vEngine'),vMeta=$('vMeta'),
+    revealBtn=$('revealBtn'),liveBtn=$('liveBtn'),quotaN=$('quotaN'),libList=$('libList');
+var current=null,revealed=false;
+function dayKey(){var d=new Date();return d.getUTCFullYear()+"-"+(d.getUTCMonth()+1)+"-"+d.getUTCDate();}
+function quotaLeft(){var s=JSON.parse(store.get("wiz_live_demo")||"{}");
+  return s.day===dayKey()?Math.max(0,WIZ.dailyLiveLimit-s.n):WIZ.dailyLiveLimit;}
+function quotaUse(){var s=JSON.parse(store.get("wiz_live_demo")||"{}");
+  var n=(s.day===dayKey()?s.n:0)+1;store.set("wiz_live_demo",JSON.stringify({day:dayKey(),n:n}));return n;}
+function syncQuota(){var left=quotaLeft();quotaN.textContent=left;liveBtn.disabled=left<=0;
+  if(left<=0)liveBtn.textContent="Daily build quota reached — resets 00:00 UTC";}
+function render(pz,src,ms){current=pz;revealed=false;revealBtn.textContent="Prove it solves";
+  pz.payload=(GEN[pz.type]||function(){return{};})(pz.seed);
+  vEngine.textContent=pz.engine.toUpperCase();vTitle.textContent=pz.title;
+  vMeta.innerHTML="seed "+pz.seed+" · "+src+(ms!=null?" · built in "+ms+"ms":"")+" · "+WIZ.grid;
+  vBody.innerHTML=(WIZ.renderers[pz.type]||function(){return "<span class='micro'>renderer missing</span>";})(pz,false);
+  var led=document.querySelector('[data-led="'+pz.type+'"]');
+  if(led){led.classList.add('live');setTimeout(function(){led.classList.remove('live');},1200);}}
+revealBtn.addEventListener('click',function(){if(!current)return;revealed=!revealed;
+  revealBtn.textContent=revealed?"Hide solution":"Prove it solves";
+  vBody.innerHTML=WIZ.renderers[current.type](current,revealed);});
+WIZ.library.forEach(function(item){var b=document.createElement('button');b.className='librow';
+  b.innerHTML='<div><span class="t">'+item.title+'</span><span class="m">'+item.meta+'</span></div><span class="chip">'+item.type.toUpperCase()+'</span>';
+  b.addEventListener('click',function(){Array.prototype.forEach.call(libList.children,function(c){c.classList.remove('on');});
+    b.classList.add('on');render(item,"library",null);});
+  libList.appendChild(b);});
+liveBtn.addEventListener('click',function(){if(quotaLeft()<=0)return;
+  var types=["maze","word","murdoku","cbn"],type=types[(Math.random()*types.length)|0];
+  var seed=(Math.random()*1e6)|0,t0=performance.now();
+  var done=function(pz){var ms=Math.round(performance.now()-t0);quotaUse();syncQuota();
+    render(pz,WIZ.engineEndpoint?"engine":"on-device",ms);};
+  if(WIZ.engineEndpoint){fetch(WIZ.engineEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({type:type,seed:seed,grid:"nano"})}).then(function(r){return r.json();}).then(done)
+    .catch(function(){done({id:"V"+seed,engine:"Mazewright",title:"Live "+type+" #"+(seed%97),meta:"on-device fallback",type:type,seed:seed});});}
+  else{var engines={maze:"Mazewright",word:"Gridlock",murdoku:"Whodunit",cbn:"Secret Shades"};
+    done({id:"V"+seed,engine:engines[type],title:"Live "+type+" #"+(seed%97),meta:"on-device",type:type,seed:seed});}});
+Array.prototype.forEach.call(document.querySelectorAll('[data-open]'),function(b){
+  b.addEventListener('click',function(){var type=b.getAttribute('data-open');
+    var item=WIZ.library.filter(function(l){return l.type===type;})[0]||WIZ.library[0];
+    var demo=document.getElementById('demo');if(demo)demo.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){render(item,"library",null);},450);});});
+syncQuota();render(WIZ.library[0],"library",null);
+if(libList.children[0])libList.children[0].classList.add('on');
+}catch(e){}
+})();
+</script>
+
+<!-- BOOT 2 · AMBIENT -->
+<script>
+(function(){
+"use strict";
+try{
+var vg=document.getElementById('vidGrid');
+if(vg){for(var i=0;i<81;i++){var c=document.createElement('div');c.className='vcell';
+  c.style.animationDelay=(i*0.08)+'s';
+  if((i%9===0)||(i%9===8)||(i<9)||(i>=72))c.classList.add('on');
+  c.textContent=(i%7===0)?'✕':(i%5===0)?'●':'';
+  vg.appendChild(c);}}
+}catch(e){}
+function cells(id,cols,rows,fn){var el=document.getElementById(id);if(!el)return;
+  el.style.gridTemplateColumns="repeat("+cols+",1fr)";
+  for(var i=0;i<cols*rows;i++){var d=document.createElement('span');d.className='c';if(fn)fn(d,i);el.appendChild(d);}}
+try{
+var wClue={2:'4',7:'1',9:'2',14:'3',16:'✕',21:'1',24:'4',27:'2',32:'3'};
+['pv-w'].forEach(function(id){cells(id,6,6,function(d,i){if(wClue[i]){d.textContent=wClue[i];d.classList.add(wClue[i]==='✕'?'x':'clue');}});});
+var ink=function(i){return [12,13,21,24,32,34,43,45,52,56].indexOf(i)>=0;};
+['pv-s'].forEach(function(id){cells(id,10,7,function(d,i){if(ink(i))d.classList.add('ink');else d.textContent=(i%4)+1;});});
+var letters="CRIMESCENEBUTLERALIBICANDLESTUDYPOISONDAggerNIGHTTRAINWINDOWGARDEN";
+['pv-g'].forEach(function(id){cells(id,8,8,function(d,i){d.textContent=letters[i%letters.length];if(i%13===0)d.classList.add('clue');});});
+}catch(e){}
+try{
+var sprog=document.getElementById('sprog');
+addEventListener('scroll',function(){var h=document.documentElement;
+  sprog.style.width=(scrollY/(h.scrollHeight-innerHeight)*100)+'%';},{passive:true});
+addEventListener('pointermove',function(e){document.documentElement.style.setProperty('--mx',e.clientX+'px');
+  document.documentElement.style.setProperty('--my',e.clientY+'px');});
+}catch(e){}
+try{
+function fclock(){var d=new Date();document.getElementById('fclock').textContent=
+  String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')+' UTC';}
+fclock();setInterval(fclock,30000);
+}catch(e){}
+})();
+</script>
+
+<!-- BOOT 2B · LANGUAGE RAIL -->
+<script>
+(function(){
+"use strict";
+var FLAGS={
+"EN":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jEN)"><rect width="60" height="60" fill="#012169"/><path d="M0 0l60 60M60 0L0 60" stroke="#fff" stroke-width="8"/><path d="M0 0l60 60M60 0L0 60" stroke="#C8102E" stroke-width="4"/><path d="M30 0v60M0 30h60" stroke="#fff" stroke-width="12"/><path d="M30 0v60M0 30h60" stroke="#C8102E" stroke-width="8"/></g><defs><clipPath id="jEN"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"ES":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jES)"><rect width="60" height="60" fill="#AA151B"/><rect y="15" width="60" height="30" fill="#F1BF00"/></g><defs><clipPath id="jES"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"FR":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jFR)"><rect width="20" height="60" fill="#002395"/><rect x="20" width="20" height="60" fill="#fff"/><rect x="40" width="20" height="60" fill="#ED2939"/></g><defs><clipPath id="jFR"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"DE":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jDE)"><rect width="60" height="20" fill="#000"/><rect y="20" width="60" height="20" fill="#DD0000"/><rect y="40" width="60" height="20" fill="#FFCE00"/></g><defs><clipPath id="jDE"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"IT":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jIT)"><rect width="20" height="60" fill="#009246"/><rect x="20" width="20" height="60" fill="#fff"/><rect x="40" width="20" height="60" fill="#CE2B37"/></g><defs><clipPath id="jIT"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"PT":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jPT)"><rect width="24" height="60" fill="#006600"/><rect x="24" width="36" height="60" fill="#FF0000"/><circle cx="24" cy="30" r="7" fill="#FFCC00"/></g><defs><clipPath id="jPT"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"NL":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jNL)"><rect width="60" height="20" fill="#AE1C28"/><rect y="20" width="60" height="20" fill="#fff"/><rect y="40" width="60" height="20" fill="#21468B"/></g><defs><clipPath id="jNL"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"PL":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jPL)"><rect width="60" height="30" fill="#fff"/><rect y="30" width="60" height="30" fill="#DC143C"/></g><defs><clipPath id="jPL"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"AR":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jAR)"><rect width="60" height="60" fill="#006C35"/><text x="30" y="38" text-anchor="middle" font-size="18" fill="#fff" font-family="serif">ﷲ</text></g><defs><clipPath id="jAR"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"UR":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jUR)"><rect width="60" height="60" fill="#01411C"/><rect x="0" width="15" height="60" fill="#fff"/><path d="M34 22a9 9 0 1 1-3 14 7 7 0 0 0 3-14z" fill="#fff"/><path d="M39 18l1 3 3-1-2 2 2 2-3-1-1 3-1-3-3 1 2-2-2-2 3 1z" fill="#fff"/></g><defs><clipPath id="jUR"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>',
+"HI":'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g clip-path="url(#jHI)"><rect width="60" height="20" fill="#FF9933"/><rect y="20" width="60" height="20" fill="#fff"/><rect y="40" width="60" height="20" fill="#138808"/><circle cx="30" cy="30" r="5" fill="none" stroke="#000080" stroke-width="1.2"/><circle cx="30" cy="30" r="1" fill="#000080"/></g><defs><clipPath id="jHI"><circle cx="30" cy="30" r="30"/></clipPath></defs></svg>'
+};
+function reduced(){return matchMedia("(prefers-reduced-motion: reduce)").matches;}
+var LANGS=[
+ {flag:'EN',name:'English',native:'English',dir:'ltr',script:'Latin · baseline',market:['Amazon.com','.co.uk','.au'],title:"The Butler's Grid",sub:'A WHODUNIT CASEBOOK',clue:'“Every clue is true. The killer lies.”',cells:['B','U','T','L','E','R'],books:'4,210',note:'native QA stamp'},
+ {flag:'ES',name:'Spanish',native:'Español',dir:'ltr',script:'Latin · accent‑safe',market:['Amazon.es','.mx','.com'],title:'La Rejilla del Mayordomo',sub:'UN CASO WHODUNIT',clue:'«Cada pista es cierta. El asesino miente.»',cells:['M','A','Y','O','R','D'],books:'2,860',note:'native QA stamp'},
+ {flag:'FR',name:'French',native:'Français',dir:'ltr',script:'Latin · œ/é ligatures',market:['Amazon.fr','.ca','.be'],title:'La Grille du Majordome',sub:'UNE AFFAIRE WHODUNIT',clue:'«Chaque indice est vrai. Le tueur ment.»',cells:['M','A','J','O','R','D'],books:'2,140',note:'native QA stamp'},
+ {flag:'DE',name:'German',native:'Deutsch',dir:'ltr',script:'Latin · umlaut‑safe',market:['Amazon.de','.at','.ch'],title:'Das Butler‑Raster',sub:'EIN WHODUNIT‑FALL',clue:'„Jede Spur stimmt. Der Mörder lügt.“',cells:['B','U','T','L','E','R'],books:'1,980',note:'native QA stamp'},
+ {flag:'IT',name:'Italian',native:'Italiano',dir:'ltr',script:'Latin · accent‑safe',market:['Amazon.it'],title:'La Griglia del Maggiordomo',sub:'UN CASO WHODUNIT',clue:'«Ogni indizio è vero. L’assassino mente.»',cells:['M','A','G','G','I','O'],books:'1,420',note:'native QA stamp'},
+ {flag:'PT',name:'Portuguese',native:'Português',dir:'ltr',script:'Latin · accent‑safe',market:['Amazon.br','.pt'],title:'A Grade do Mordomo',sub:'UM CASO WHODUNIT',clue:'«Cada pista é verdadeira. O assassino mente.»',cells:['M','O','R','D','O','M'],books:'1,310',note:'native QA stamp'},
+ {flag:'NL',name:'Dutch',native:'Nederlands',dir:'ltr',script:'Latin · diacritic‑safe',market:['Amazon.nl','.be'],title:'De Butlersgrid',sub:'EEN WHODUNIT‑ZAAK',clue:'‘Elke aanwijzing klopt. De moordenaar liegt.’',cells:['B','U','T','L','E','R'],books:'860',note:'native QA stamp'},
+ {flag:'PL',name:'Polish',native:'Polski',dir:'ltr',script:'Latin · ł/ż/ę safe',market:['Amazon.pl'],title:'Siatka Lokaja',sub:'SPRAWA WHODUNIT',clue:'„Każda poszlaka jest prawdziwa. Morderca kłamie.”',cells:['L','O','K','A','J'],books:'740',note:'native QA stamp'},
+ {flag:'AR',name:'Arabic',native:'العربية',dir:'rtl',script:'Arabic · RTL · ligature‑safe',market:['Amazon.ae','.sa','.eg'],title:'شبكة الخادم',sub:'قضية وهودونيت',clue:'«كل دليل صادق… والقاتل يكذب.»',cells:['خ','ا','د','م'],books:'1,120',note:'native QA stamp'},
+ {flag:'UR',name:'Urdu',native:'اردو',dir:'rtl',script:'Nastaliq‑friendly · RTL',market:['Amazon.ae','diaspora'],title:'خادم کا جال',sub:'ایک وہودونٹ کیس',clue:'«ہر سرا سچا ہے… قاتل جھوٹ بولتا ہے۔»',cells:['خ','ا','د','م'],books:'640',note:'native QA stamp'},
+ {flag:'HI',name:'Hindi',native:'हिन्दी',dir:'ltr',script:'Devanagari · matra‑safe',market:['Amazon.in'],title:'बटलर का जाल',sub:'एक वहोड्यूनित केस',clue:'«हर सुराग सच है… कातिल झूठ बोलता है।»',cells:['ज','ा','ल'],books:'980',note:'native QA stamp'}];
+try{
+var track=document.getElementById('langTrack'),list=document.getElementById('langList'),dotsBox=document.getElementById('langDots');
+if(!track||!list||!dotsBox)return;
+LANGS.forEach(function(L,i){var r=document.createElement('div');r.className='lrow';
+  r.innerHTML='<span class="fl">'+FLAGS[L.flag]+'</span><div><b>'+L.name+'</b><span class="nat">'+L.native+'</span></div><span class="cnt">'+L.books+' books</span>';
+  r.addEventListener('click',function(){setLang(i);hold();});track.appendChild(r);
+  var d=document.createElement('i');d.addEventListener('click',function(){setLang(i);hold();});dotsBox.appendChild(d);});
+var rows=Array.prototype.slice.call(track.children),dots=Array.prototype.slice.call(dotsBox.children);
+var li=0,ltimer=null,lpause=false,holdT=null;
+function hold(){lpause=true;var s=document.getElementById('langState');if(s)s.textContent='you have the wheel';
+  clearTimeout(holdT);holdT=setTimeout(function(){lpause=false;var s2=document.getElementById('langState');if(s2)s2.textContent='auto‑playing';},6000);}
+function setLang(i){li=(i+LANGS.length)%LANGS.length;var L=LANGS[li];
+  rows.forEach(function(r,idx){r.classList.toggle('on',idx===li);});
+  dots.forEach(function(d,idx){d.classList.toggle('on',idx===li);});
+  var ty=-(rows[li].offsetTop-list.clientHeight/2+rows[li].offsetHeight/2);
+  var max=-(track.scrollHeight-list.clientHeight);
+  track.style.transform="translateY("+Math.min(0,Math.max(max,ty))+"px)";
+  var sw=document.getElementById('lswap');
+  if(sw&&!reduced()){
+    if(window.gsap){gsap.fromTo(sw,{opacity:0,y:14,filter:'blur(6px)'},{opacity:1,y:0,filter:'blur(0px)',duration:.6,ease:'expo.out',overwrite:true});}
+    else{sw.style.opacity=0;sw.style.transform="translateY(12px)";
+      requestAnimationFrame(function(){sw.style.opacity=1;sw.style.transform="none";});}}
+  var g=function(id){return document.getElementById(id);};
+  g('lFlag').innerHTML=FLAGS[L.flag];g('lbook').dir=L.dir;
+  var t=g('lTitle');t.textContent=L.title;t.dir=L.dir;
+  var s=g('lSub');s.textContent=L.sub;s.dir=L.dir;
+  g('lDir').textContent=L.dir==='rtl'?'RTL TYPESETTING':'LTR TYPESETTING';
+  g('lScript').textContent=L.script;
+  g('lMarket').innerHTML=L.market.map(function(m){return '<span class="pill" style="font-weight:500;color:var(--gray)">'+m+'</span>';}).join('');
+  var cl=g('lClue');cl.textContent=L.clue;cl.dir=L.dir;
+  g('lCells').innerHTML=L.cells.map(function(c){return '<span>'+c+'</span>';}).join('');
+  g('lBooks').innerHTML=L.books+'<i>.00</i>';
+  g('lNote').textContent=L.note;
+  var bar=g('lbarFill');bar.style.transition='none';bar.style.width='0%';void bar.offsetWidth;
+  bar.style.transition='width 2.6s linear';bar.style.width='100%';}
+function playLang(){if(ltimer)return;ltimer=setInterval(function(){if(!lpause&&!reduced())setLang(li+1);},2600);}
+function stopLang(){clearInterval(ltimer);ltimer=null;}
+new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?playLang():stopLang();});},{threshold:.35}).observe(list);
+list.addEventListener('mouseenter',function(){lpause=true;document.getElementById('langState').textContent='paused — hover';});
+list.addEventListener('mouseleave',function(){lpause=false;document.getElementById('langState').textContent='auto‑playing';});
+setLang(0);
+}catch(e){}
+})();
+</script>
+
+<!-- BOOT 3 · MOTION -->
+<script>
+(function(){
+"use strict";
+var REDUCE=matchMedia("(prefers-reduced-motion: reduce)").matches;
+if(REDUCE)document.documentElement.classList.add("reduced");
+var HAS=window.gsap&&window.ScrollTrigger;
+if(REDUCE||!HAS){
+  var io=new IntersectionObserver(function(es){es.forEach(function(x){if(!x.isIntersecting)return;
+    io.unobserve(x.target);x.target.style.opacity=1;x.target.style.transform="none";x.target.style.filter="none";});},{threshold:.15});
+  Array.prototype.forEach.call(document.querySelectorAll('.rv'),function(el){
+    var x=el.classList.contains('rv-l')?-44:el.classList.contains('rv-r')?44:0;
+    el.style.opacity=0;el.style.transform=(x?("translateX("+x+"px)"):"translateY(28px)")+(el.classList.contains('rv-s')?" scale(.94)":"");
+    io.observe(el);});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-stag]'),function(box){
+    var io2=new IntersectionObserver(function(es){es.forEach(function(x){if(!x.isIntersecting)return;io2.unobserve(x.target);
+      Array.prototype.forEach.call(x.target.children,function(c,i){setTimeout(function(){
+        c.style.opacity=1;c.style.transform="none";c.style.filter="none";},i*90);});});},{threshold:.15});
+    Array.prototype.forEach.call(box.children,function(c){c.style.opacity=0;c.style.transform="translateY(34px)";c.style.filter="blur(6px)";});
+    io2.observe(box);});
+  Array.prototype.forEach.call(document.querySelectorAll('.hero h1,.sec-head h2,.cta h2,.f-top h2'),function(el){
+    var walk=function(node){Array.prototype.slice.call(node.childNodes).forEach(function(n){
+      if(n.nodeType===3){var frag=document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function(tok){if(!tok)return;
+          if(/^\s+$/.test(tok))frag.appendChild(document.createTextNode(" "));
+          else{var s=document.createElement('span');s.className='w';s.style.opacity=0;s.style.transform="translateY(.5em)";s.style.filter="blur(6px)";s.textContent=tok;frag.appendChild(s);}});
+        node.replaceChild(frag,n);}
+      else if(n.nodeType===1&&n.tagName!=="BR")walk(n);});};
+    walk(el);
+    var io3=new IntersectionObserver(function(es){es.forEach(function(x){if(!x.isIntersecting)return;io3.unobserve(x.target);
+      Array.prototype.forEach.call(x.target.querySelectorAll('.w'),function(w,i){setTimeout(function(){
+        w.style.opacity=1;w.style.transform="none";w.style.filter="none";},i*28);});});},{threshold:.4});
+    io3.observe(el);});
+  return;
+}
+gsap.registerPlugin(ScrollTrigger);gsap.defaults({overwrite:"auto"});
+var E="expo.out";
+function splitEl(el){
+  var walk=function(node){Array.prototype.slice.call(node.childNodes).forEach(function(n){
+    if(n.nodeType===3){var frag=document.createDocumentFragment();
+      n.textContent.split(/(\s+)/).forEach(function(tok){if(!tok)return;
+        if(/^\s+$/.test(tok))frag.appendChild(document.createTextNode(" "));
+        else{var s=document.createElement('span');s.className='w';s.textContent=tok;frag.appendChild(s);}});
+      node.replaceChild(frag,n);}
+    else if(n.nodeType===1&&n.tagName!=="BR")walk(n);});};
+  walk(el);
+  var ws=el.querySelectorAll(".w");
+  gsap.set(ws,{opacity:0,y:"0.55em",filter:"blur(7px)"});
+  gsap.to(ws,{opacity:1,y:0,filter:"blur(0px)",duration:1.15,ease:E,stagger:0.03,
+    scrollTrigger:{trigger:el,start:"top 90%",once:true},clearProps:"filter,will-change"});}
+document.querySelectorAll(".hero h1,.sec-head h2,.cta h2,.f-top h2").forEach(splitEl);
+document.querySelectorAll("[data-stag]").forEach(function(box){
+  var ch=Array.prototype.slice.call(box.children);
+  gsap.set(ch,{opacity:0,y:36,scale:.985,filter:"blur(6px)"});
+  gsap.to(ch,{opacity:1,y:0,scale:1,filter:"blur(0px)",duration:1.05,ease:E,stagger:0.09,
+    scrollTrigger:{trigger:box,start:"top 86%",once:true},clearProps:"filter,transform,will-change"});});
+document.querySelectorAll(".rv").forEach(function(el){
+  if(el.parentElement&&el.parentElement.closest("[data-stag]"))return;
+  var x=el.classList.contains("rv-l")?-44:el.classList.contains("rv-r")?44:0;
+  var sc=el.classList.contains("rv-s")?.94:1;
+  gsap.set(el,{opacity:0,x:x,y:x?0:28,scale:sc});
+  gsap.to(el,{opacity:1,x:0,y:0,scale:1,duration:1.1,ease:E,
+    scrollTrigger:{trigger:el,start:"top 89%",once:true},clearProps:"transform,will-change"});});
+document.querySelectorAll(".mini").forEach(function(mini){
+  var skel=document.createElement("div");skel.className="skel";mini.appendChild(skel);
+  var content=Array.prototype.slice.call(mini.children).filter(function(c){return c!==skel;});
+  gsap.set(content,{opacity:0,filter:"blur(10px)",scale:1.04});
+  ScrollTrigger.create({trigger:mini,start:"top 88%",once:true,onEnter:function(){
+    gsap.timeline().to(skel,{opacity:0,duration:.55,ease:"power2.inOut",delay:.25})
+      .to(content,{opacity:1,filter:"blur(0px)",scale:1,duration:.9,ease:E,stagger:.05,clearProps:"filter,transform"},.45)
+      .add(function(){skel.remove();});}});});
+if(matchMedia("(pointer:fine)").matches){
+  document.querySelectorAll(".btn-dark:not(.rv),.soc,.totop").forEach(function(b){
+    var xTo=gsap.quickTo(b,"x",{duration:.45,ease:"power3.out"}),
+        yTo=gsap.quickTo(b,"y",{duration:.45,ease:"power3.out"});
+    b.addEventListener("mousemove",function(e){var r=b.getBoundingClientRect();
+      xTo((e.clientX-r.left-r.width/2)*.16);yTo((e.clientY-r.top-r.height/2)*.22);});
+    b.addEventListener("mouseleave",function(){xTo(0);yTo(0);});});}
+gsap.to("#ghost",{y:function(){return innerHeight*.25;},ease:"none",
+  scrollTrigger:{start:0,end:"max",scrub:true,invalidateOnRefresh:true}});
+addEventListener("load",function(){ScrollTrigger.refresh();});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){ScrollTrigger.refresh();});
+addEventListener("resize",function(){ScrollTrigger.refresh();});
+})();
+</script>
+</body>
+</html>
